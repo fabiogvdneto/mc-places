@@ -1,7 +1,0 @@
-# Languages currently available: 'en', 'pt'.
-language: 'en'
-# Auto-save, in minutes (0 to disable).
-auto-save: 5
-# How many days a player can be offline before being purged/removed from database (0 to disable).
-# Players will be purged on server start up and everytime auto-save is run.
-purge: 60
