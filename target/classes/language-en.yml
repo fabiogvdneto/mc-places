@@ -1,0 +1,22 @@
+command:
+  players-only: '&cOnly players can execute this command.'
+  no-permission: '&cNo permission.'
+  usage:
+    setwarp: '&cUse &f/setwarp <name>&c.'
+    delwarp: '&cUse &f/delwarp <name>&c.'
+warp:
+  set: '&aWarp set.'
+  deleted: '&aWarp deleted.'
+  not-found: '&cWarp not found.'
+  already-exists: '&cThat name is already in use.'
+  no-permission: '&cNo permission.'
+  list:
+    base: '&eWarps: &f{0}&e.'
+    separator: '&7, &f'
+    empty: '&cThere are no warps available yet.'
+teleportation:
+  movement-not-allowed: '&cTeleportation cancelled: movement detected.'
+  damage-not-allowed: '&cTeleportation cancelled: damage detected.'
+  delay: '&eTeleporting in &f{0}&e...'
+  cancelled: '&aTeleportation cancelled.'
+  finished: '&aTeleported sucessfully.'

@@ -1,0 +1,22 @@
+command:
+  players-only: '&cApenas jogadores podem executar este comando.'
+  no-permission: '&cSem permissão.'
+  usage:
+    setwarp: '&cDigite &f/setwarp <nome>&c.'
+    delwarp: '&cDigite &f/delwarp <nome>&c.'
+warp:
+  set: '&aWarp definida.'
+  deleted: '&aWarp apagada.'
+  not-found: '&cWarp não encontrada.'
+  already-exists: '&cEsse nome já está a ser usado.'
+  no-permission: '&cSem permissão.'
+  list:
+    base: '&eWarps: &f{0}&e.'
+    separator: '&7, &f'
+    empty: '&cAinda não há warps disponíveis.'
+teleportation:
+  movement-not-allowed: '&cTeletransporte cancelado: movimento detetado.'
+  damage-not-allowed: '&cTeletransporte cancelado: dano detetado.'
+  countdown: '&eTeletransportando em &f{0}&e...'
+  cancelled: '&aTeletransporte cancelado.'
+  finished: '&aTeletransportado com sucesso.'

@@ -7,6 +7,12 @@
 # BlueJ files
 *.ctxt
 
+<<<<<<< HEAD
+=======
+# IntelliJ files
+*.iml
+
+>>>>>>> 8aaaca4 (Added project files.)
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
