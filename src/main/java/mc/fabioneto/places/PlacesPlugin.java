@@ -50,7 +50,11 @@ public final class PlacesPlugin extends JavaPlugin {
     }
 
     private void loadManager(Configuration config) {
-        this.manager = new PluginPlaceManager(this, new File(getDataFolder(), "places"));
+        File dir = new File(getDataFolder(), "data");
+
+        dir.mkdirs();
+
+        this.manager = new PluginPlaceManager(this, dir);
 
         manager.load();
         manager.autosave(config.getInt("autosave"));

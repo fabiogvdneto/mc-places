@@ -41,6 +41,12 @@ public class PluginPlaceManager implements PlaceManager {
     public void load() {
         for (File file : dir.listFiles((file, name) -> (file.isFile() && name.endsWith(".json")))) {
             UUID uid = extractUID(file);
+
+            if ((uid == null) && (!file.getName().equals("global.json"))) {
+                file.delete();
+                continue;
+            }
+
             MemCitizen ctz = new MemCitizen(uid);
 
             ctz.load(file);
@@ -56,7 +62,6 @@ public class PluginPlaceManager implements PlaceManager {
         try {
             return UUID.fromString(name.substring(0, name.length() - 5));
         } catch (IllegalArgumentException e) {
-            file.delete();
             return null;
         }
     }
@@ -90,7 +95,7 @@ public class PluginPlaceManager implements PlaceManager {
     }
 
     private File newFile(UUID uid) {
-        String name = ((uid == null) ? "warps" : uid) + ".json";
+        String name = ((uid == null) ? "global" : uid) + ".json";
 
         return new File(dir, name);
     }
@@ -175,7 +180,7 @@ public class PluginPlaceManager implements PlaceManager {
         private boolean modified;
 
         private MemCitizen(UUID uid) {
-            this.uid = Objects.requireNonNull(uid);
+            this.uid = uid;
         }
 
         @Override
@@ -220,6 +225,14 @@ public class PluginPlaceManager implements PlaceManager {
 
         private String toKey(String id) {
             return id.toLowerCase(Locale.ENGLISH);
+        }
+
+        private boolean isOutdated(long ttl) {
+            if (uid == null) return false;
+
+            long time = System.currentTimeMillis() - Bukkit.getOfflinePlayer(uid).getLastSeen();
+
+            return (time > ttl);
         }
 
         private void save(File file) {
