@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
@@ -43,11 +44,14 @@ public class PluginPlaceManager implements PlaceManager {
             UUID uid = extractUID(file);
             MemCitizen ctz = new MemCitizen(uid);
 
+            if (ctz.isOutdated(ttl)) {
+                file.delete();
+                continue;
+            }
+
             ctz.load(file);
             cache.put(uid, ctz);
         }
-
-        purge();
     }
 
     private UUID extractUID(File file) {
@@ -80,10 +84,16 @@ public class PluginPlaceManager implements PlaceManager {
 
     @Override
     public void save() {
-        purge();
+        Iterator<MemCitizen> it = cache.values().iterator();
 
-        for (MemCitizen ctz : cache.values()) {
-            if (ctz.modified) {
+        while (it.hasNext()) {
+            MemCitizen ctz = it.next();
+            File file = newFile(ctz.uid);
+
+            if (ctz.isOutdated(ttl)) {
+                it.remove();
+                file.delete();
+            } else if (ctz.modified) {
                 ctz.save(newFile(ctz.uid));
             }
         }
@@ -93,25 +103,6 @@ public class PluginPlaceManager implements PlaceManager {
         String name = ((uid == null) ? "warps" : uid) + ".json";
 
         return new File(dir, name);
-    }
-
-    private void purge() {
-        if (ttl <= 0) return;
-
-        Iterator<UUID> it = cache.keySet().iterator();
-
-        while (it.hasNext()) {
-            UUID uid = it.next();
-
-            if (uid == null) continue;
-
-            long time = System.currentTimeMillis() - Bukkit.getOfflinePlayer(uid).getLastSeen();
-
-            if (time < ttl) {
-                it.remove();
-                newFile(uid).delete();
-            }
-        }
     }
 
     @Override
@@ -175,7 +166,7 @@ public class PluginPlaceManager implements PlaceManager {
         private boolean modified;
 
         private MemCitizen(UUID uid) {
-            this.uid = Objects.requireNonNull(uid);
+            this.uid = uid;
         }
 
         @Override
@@ -220,6 +211,14 @@ public class PluginPlaceManager implements PlaceManager {
 
         private String toKey(String id) {
             return id.toLowerCase(Locale.ENGLISH);
+        }
+
+        private boolean isOutdated(long ttl) {
+            if (uid == null) return false;
+
+            long time = System.currentTimeMillis() - Bukkit.getOfflinePlayer(uid).getLastSeen();
+
+            return (time < ttl);
         }
 
         private void save(File file) {
