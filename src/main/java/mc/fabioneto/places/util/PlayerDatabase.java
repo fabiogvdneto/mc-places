@@ -4,8 +4,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
@@ -17,25 +18,16 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Logger;
 
-public class PlayerFetcher implements Listener {
+public class PlayerDatabase implements Listener {
 
-    private final Plugin plugin;
+    private final Logger logger;
     private final BiMap<UUID, String> cache;
 
-    public PlayerFetcher(Plugin plugin) {
-        this.plugin = Objects.requireNonNull(plugin);
+    public PlayerDatabase(Logger logger) {
+        this.logger = Objects.requireNonNull(logger);
         this.cache = HashBiMap.create();
-
-        Bukkit.getPluginManager().registerEvents(new Listener() {
-
-            public void onJoin(PlayerJoinEvent e) {
-                Player p = e.getPlayer();
-
-                cache.forcePut(p.getUniqueId(), p.getName());
-            }
-
-        }, plugin);
     }
 
     public BiMap<UUID, String> getCache() {
@@ -65,6 +57,8 @@ public class PlayerFetcher implements Listener {
     }
 
     public void load(File file) {
+        if (!file.exists()) return;
+
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             reader.beginObject();
 
@@ -89,8 +83,15 @@ public class PlayerFetcher implements Listener {
         try {
             return UUID.fromString(serialized);
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("Failed to convert the following string to uuid: " + serialized);
+            logger.warning("Failed to convert the following string to uuid: " + serialized);
             return null;
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+
+        cache.forcePut(p.getUniqueId(), p.getName());
     }
 }

@@ -4,6 +4,8 @@ command:
   usage:
     setwarp: '&cUse &f/setwarp <name>&c.'
     delwarp: '&cUse &f/delwarp <name>&c.'
+    sethome: '&cUse &f/sethome <name>&c.'
+    delhome: '&cUse &f/delhome <name>&c.'
 warp:
   set: '&aWarp set.'
   deleted: '&aWarp deleted.'
@@ -14,9 +16,22 @@ warp:
     base: '&eWarps: &f{0}&e.'
     separator: '&7, &f'
     empty: '&cThere are no warps available yet.'
+home:
+  player-not-found: '&cPlayer not found.'
+  set: '&aHome set.'
+  deleted: '&aHome deleted.'
+  not-found: '&cHome not found.'
+  already-exists: '&cThat name is already in use.'
+  closed: '&cThat home is currently closed.'
+  limit-reached: '&cYou reached your limit of {0} homes.'
+  list:
+    base: '&eHomes: &f{0}&e.'
+    separator: '&7, &f'
+    empty: '&cNo homes have been found.'
 teleportation:
   movement-not-allowed: '&cTeleportation cancelled: movement detected.'
   damage-not-allowed: '&cTeleportation cancelled: damage detected.'
+  cmd-blocked: '&cCommand blocked during teleportation.'
   countdown: '&eTeleporting in &f{0}&e...'
   cancelled: '&aTeleportation cancelled.'
-  finished: '&aTeleported sucessfully.'
+  finished: '&aTeleported to &f{0}&a.'

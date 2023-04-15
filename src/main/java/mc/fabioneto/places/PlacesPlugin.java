@@ -1,96 +1,162 @@
 package mc.fabioneto.places;
 
 import mc.fabioneto.places.command.*;
-import mc.fabioneto.places.util.PlayerFetcher;
-import mc.fabioneto.places.util.Resources;
+import mc.fabioneto.places.util.CommandBlocker;
+import mc.fabioneto.places.util.PlayerDatabase;
 import mc.fabioneto.places.util.lang.PluginLanguage;
-import org.bukkit.configuration.Configuration;
+import mc.fabioneto.places.util.place.JsonPlaceManager;
+import mc.fabioneto.places.util.place.PlaceManager;
+import mc.fabioneto.places.util.teleportation.PluginTeleporter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 
 public final class PlacesPlugin extends JavaPlugin {
 
-    private PluginLanguage lang;
-    private PlaceManager manager;
-    private PlayerFetcher playerFetcher;
-    private PlaceTeleporter teleporter;
+    /* ---- Global Variables ---- */
 
-    @Override
-    public void onLoad() {
-        Places.setPlugin(this);
-    }
+    private final PluginLanguage lang = new PluginLanguage(this, "languages" + File.separatorChar);
+    private final PlaceManager manager = new JsonPlaceManager();
+    private final PlayerDatabase playerDatabase = new PlayerDatabase(getLogger());
+    private final PlacesTeleporter teleporter = new PlacesTeleporter(this);
+    private final CommandBlocker cmdBlocker = new CommandBlocker();
 
-    @Override
-    public void onEnable() {
-        Configuration config = Resources.saveAndLoad(this, "settings.yml");
+    private File keysFile;
+    private File placesFolder;
 
-        loadManager(config);
-        loadPlayerFetcher();
-        loadLanguage(config);
-        loadTeleporter(config);
-        loadCommands();
-    }
+    private BukkitTask autosave;
 
-    @Override
-    public void onDisable() {
-        manager.autosave(0);
-        manager.setTimeToLive(0);
-        manager.save();
-        playerFetcher.save(createKeysFile());
+    /* ---- Getters ---- */
 
-        this.manager = null;
-        this.lang = null;
-        this.playerFetcher = null;
-        this.teleporter = null;
+    public PluginLanguage getLanguage() {
+        return lang;
     }
 
     public PlaceManager getPlaceManager() {
         return manager;
     }
 
-    private void loadManager(Configuration config) {
-        File dir = new File(getDataFolder(), "data");
-
-        dir.mkdirs();
-
-        this.manager = new PluginPlaceManager(this, dir);
-
-        manager.load();
-        manager.autosave(config.getInt("autosave"));
-        manager.setTimeToLive(config.getInt("ttl"));
+    public PlayerDatabase getPlayerDatabase() {
+        return playerDatabase;
     }
 
-    private void loadLanguage(Configuration config) {
-        this.lang = new PluginLanguage(this, "languages" + File.separatorChar);
-
-        lang.load(config.getString("language"));
+    public PlacesTeleporter getTeleporter() {
+        return teleporter;
     }
 
-    private void loadCommands() {
+    public CommandBlocker getCommandBlocker() {
+        return cmdBlocker;
+    }
+
+    /* ---- On Load ---- */
+
+    @Override
+    public void onLoad() {
+        Places.setPlugin(this);
+    }
+
+    /* ---- On Enable ---- */
+
+    @Override
+    public void onEnable() {
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+        saveConfig();
+
+        createFiles();
+        loadPlayerFetcher();
+        loadManager();
+        loadLanguage();
+        loadCommandBlocker();
+        registerCommands();
+
+        autosave(getConfig().getInt("autosave"));
+    }
+
+    private void createFiles() {
+        this.keysFile = newFile("keys.json");
+        this.placesFolder = newFile("places");
+
+        placesFolder.mkdirs();
+    }
+
+    private void loadPlayerFetcher() {
+        playerDatabase.load(keysFile);
+
+        getServer().getPluginManager().registerEvents(playerDatabase, this);
+    }
+
+    private void loadManager() {
+        manager.load(placesFolder);
+        manager.setTimeToLive(getConfig().getInt("ttl"));
+    }
+
+    private void loadLanguage() {
+        lang.load(getConfig().getString("language"));
+    }
+
+    private void loadCommandBlocker() {
+        int mode = getConfig().getInt("cmd-blocker.mode");
+
+        if (mode == 0) return;
+
+        cmdBlocker.setWhite(mode > 0);
+        cmdBlocker.getList().addAll(getConfig().getStringList("cmd-blocker.list"));
+        cmdBlocker.setFilter(p -> (teleporter.get(p.getUniqueId()) != null));
+        cmdBlocker.onBlock(p -> lang.translate("teleportation.cmd-blocked").send(p));
+
+        getServer().getPluginManager().registerEvents(cmdBlocker, this);
+    }
+
+    private void registerCommands() {
         new WarpCommandExecutor(this, lang).register("warp");
         new WarpsCommandExecutor(this, lang).register("warps");
         new SetwarpCommandExecutor(this, lang).register("setwarp");
         new DelwarpCommandExecutor(this, lang).register("delwarp");
+
+        new HomeCommandExecutor(this, lang).register("home");
+        new HomesCommandExecutor(this, lang).register("homes");
+        new SethomeCommandExecutor(this, lang).register("sethome");
+        new DelhomeCommandExecutor(this, lang).register("delhome");
+
         new WarpTabCompleter(this).register("warp", "delwarp");
+        new HomeTabCompleter(this).register("home", "delhome");
     }
 
-    private void loadPlayerFetcher() {
-        this.playerFetcher = new PlayerFetcher(this);
+    private void autosave(int minutes) {
+        if (autosave != null) {
+            autosave.cancel();
+        }
 
-        playerFetcher.load(createKeysFile());
+        if (minutes <= 0) {
+            autosave = null;
+            return;
+        }
+
+        long ticks = (long) minutes * 60 * 20;
+
+        this.autosave = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
+                () -> manager.save(placesFolder),
+        ticks, ticks);
     }
 
-    private File createKeysFile() {
-        return new File(getDataFolder(), "keys.json");
+    /* ---- On Disable ---- */
+
+    @Override
+    public void onDisable() {
+        autosave(0);
+
+        manager.save(placesFolder);
+        playerDatabase.save(keysFile);
+
+        manager.setTimeToLive(0);
     }
 
-    private void loadTeleporter(Configuration config) {
-        this.teleporter = new PlaceTeleporter(this, lang);
+    /* ---- Utils ---- */
 
-        teleporter.setMaxDelay(config.getInt("max-delay"));
-        teleporter.setMovementAllowed(config.getBoolean("movement-allowed"));
-        teleporter.setDamageAllowed(config.getBoolean("damage-allowed"));
-        teleporter.modCommandBlocker(config.getInt("cmd-blocker.mode"), config.getStringList("cmd-blocker.list"));
+    private File newFile(String name) {
+        return new File(getDataFolder(), name);
     }
 }

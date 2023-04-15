@@ -9,38 +9,44 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-public class WarpCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
+public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
-    public WarpCommandExecutor(PlacesPlugin plugin, Language language) {
+    public HomeCommandExecutor(PlacesPlugin plugin, Language language) {
         super(plugin, language);
     }
 
     @Override
     public void onCommand(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            translate("command.players-only").send(sender);
+            lang.translate("command.players-only").send(sender);
             return;
         }
 
         if (args.length == 0) {
-            p.performCommand("warps");
+            p.performCommand("homes");
             return;
         }
 
-        Place warp = plugin.getPlaceManager().getContainer(null).getPlace(args[0]);
+        UUID owner = (args.length > 1)
+                ? plugin.getPlayerDatabase().fetchID(args[1])
+                : p.getUniqueId();
 
-        if (isNotAvailable(p, warp)) {
-            lang.translate("warp.no-permission").send(p);
+        if (owner == null) {
+            lang.translate("home.player-not-found").send(p);
             return;
         }
 
-        plugin.getTeleporter().start(p, warp);
-    }
+        Place home = plugin.getPlaceManager().getContainer(owner).getPlace(args[0]);
 
-    private boolean isNotAvailable(Player p, Place warp) {
-        return warp.isClosed() && !p.hasPermission("places.warp." + warp.getName());
+        if (home == null) {
+            lang.translate("home.not-found").send(p);
+            return;
+        }
+
+        plugin.getTeleporter().start(p, home);
     }
 }

@@ -8,22 +8,12 @@ import java.util.UUID;
 
 public interface Teleporter {
 
-    void teleport(Player player, Location dest);
+    Collection<Teleportation> getAll();
 
-    boolean cancel(UUID player);
+    Teleportation get(UUID id);
 
-    int getMaxDelay();
+    Teleportation create(Player player, Location dest);
 
-    void setMaxDelay(int seconds);
-
-    boolean isMovementAllowed();
-
-    void setMovementAllowed(boolean allowed);
-
-    boolean isDamageAllowed();
-
-    void setDamageAllowed(boolean allowed);
-
-    void modCommandBlocker(int mode, Collection<String> list);
+    Teleportation create(Player player, Location dest, int delay);
 
 }

@@ -1,14 +1,11 @@
-package mc.fabioneto.places;
+package mc.fabioneto.places.util.place;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,97 +13,71 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class PluginPlaceManager implements PlaceManager {
+public class JsonPlaceManager implements PlaceManager {
 
-    private final Plugin plugin;
-    private final File dir;
-    private final Map<UUID, MemCitizen> cache = new HashMap<>();
+    private final Map<UUID, MemPlaceContainer> cache = new HashMap<>();
 
     private long ttl = 0;
-    private BukkitTask autosave;
 
-    public PluginPlaceManager(Plugin plugin, File dir) {
-        Preconditions.checkArgument(dir.isDirectory());
-
-        this.plugin = Objects.requireNonNull(plugin);
-        this.dir = dir;
+    @Override
+    public PlaceContainer getContainer(UUID uid) {
+        return cache.computeIfAbsent(uid, MemPlaceContainer::new);
     }
 
     @Override
-    public Citizen getCitizen(UUID uid) {
-        return cache.computeIfAbsent(uid, MemCitizen::new);
-    }
+    public void load(File dir) {
+        File[] files = dir.listFiles(File::isFile);
 
-    @Override
-    public void load() {
-        for (File file : dir.listFiles((file, name) -> (file.isFile() && name.endsWith(".json")))) {
-            UUID uid = extractUID(file);
+        if (files == null) return;
 
-            if ((uid == null) && (!file.getName().equals("global.json"))) {
+        for (File file : files) {
+            String filename = file.getName();
+            UUID uid = null;
+
+            try {
+                uid = UUID.fromString(filename.substring(0, filename.length() - 5));
+            } catch (IllegalArgumentException e) {
+                if (!filename.equals("global.json")) {
+                    file.delete();
+                    continue;
+                }
+            }
+
+            MemPlaceContainer container = new MemPlaceContainer(uid);
+
+            if (container.isOutdated(ttl)) {
                 file.delete();
                 continue;
             }
 
-            MemCitizen ctz = new MemCitizen(uid);
-
-            if (ctz.isOutdated(ttl)) {
-                file.delete();
-                continue;
+            try (JsonReader reader = new JsonReader(new FileReader(file))) {
+                container.load(reader);
+                cache.put(uid, container);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            ctz.load(file);
-            cache.put(uid, ctz);
-        }
-    }
-
-    private UUID extractUID(File file) {
-        String name = file.getName();
-
-        try {
-            return UUID.fromString(name.substring(0, name.length() - 5));
-        } catch (IllegalArgumentException e) {
-            return null;
         }
     }
 
     @Override
-    public void autosave(int minutes) {
-        if (minutes <= 0) {
-            autosave.cancel();
-            autosave = null;
-            return;
-        }
-
-        if (autosave != null) {
-            autosave.cancel();
-        }
-
-        long ticks = (long) minutes * 60 * 20;
-
-        this.autosave = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::save, ticks, ticks);
-    }
-
-    @Override
-    public void save() {
-        Iterator<MemCitizen> it = cache.values().iterator();
+    public void save(File dir) {
+        Iterator<MemPlaceContainer> it = cache.values().iterator();
 
         while (it.hasNext()) {
-            MemCitizen ctz = it.next();
-            File file = newFile(ctz.uid);
+            MemPlaceContainer container = it.next();
+            File file = container.createFile(dir);
 
-            if (ctz.isOutdated(ttl)) {
+            if (container.isOutdated(ttl)) {
                 it.remove();
                 file.delete();
-            } else if (ctz.modified) {
-                ctz.save(newFile(ctz.uid));
+            } else if (container.modified) {
+                try (JsonWriter writer = new JsonWriter(new FileWriter(file))) {
+                    container.save(writer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-    }
-
-    private File newFile(UUID uid) {
-        String name = ((uid == null) ? "global" : uid) + ".json";
-
-        return new File(dir, name);
     }
 
     @Override
@@ -121,14 +92,14 @@ public class PluginPlaceManager implements PlaceManager {
 
     private static class MemPlace implements Place {
 
-        private final MemCitizen owner;
+        private final MemPlaceContainer container;
         private final String name;
         private final Location location;
 
         private boolean closed;
 
-        private MemPlace(MemCitizen owner, String name, Location location, boolean closed) {
-            this.owner = owner;
+        private MemPlace(MemPlaceContainer container, String name, Location location, boolean closed) {
+            this.container = container;
             this.name = name.stripTrailing();
             this.location = location.clone();
             this.closed = closed;
@@ -151,7 +122,7 @@ public class PluginPlaceManager implements PlaceManager {
 
         @Override
         public void setClosed(boolean closed) {
-            if ((this.closed != closed) && (owner.modified = true)) {
+            if ((this.closed != closed) && (container.modified = true)) {
                 this.closed = closed;
             }
         }
@@ -162,19 +133,19 @@ public class PluginPlaceManager implements PlaceManager {
         }
     }
 
-    private static class MemCitizen implements Citizen {
+    private static class MemPlaceContainer implements PlaceContainer {
 
         private final UUID uid;
         private final Map<String, Place> places = new TreeMap<>();
 
         private boolean modified;
 
-        private MemCitizen(UUID uid) {
+        private MemPlaceContainer(UUID uid) {
             this.uid = uid;
         }
 
         @Override
-        public UUID getUID() {
+        public UUID getOwner() {
             return uid;
         }
 
@@ -218,58 +189,58 @@ public class PluginPlaceManager implements PlaceManager {
         }
 
         private boolean isOutdated(long ttl) {
-            if (uid == null) return false;
+            if ((uid == null) || (ttl <= 0)) return false;
 
             long time = System.currentTimeMillis() - Bukkit.getOfflinePlayer(uid).getLastSeen();
 
             return (time > ttl);
         }
 
-        private void save(File file) {
-            try (JsonWriter writer = new JsonWriter(new FileWriter(file))) {
-                writer.beginArray();
+        private File createFile(File dir) {
+            String name = ((uid == null) ? "global" : uid) + ".json";
 
-                for (Place place : places.values()) {
-                    Location loc = place.getLocation();
-
-                    writer.beginObject()
-                            .name("name").value(place.getName())
-
-                            .name("location").beginObject()
-                            .name("world").value(loc.getWorld().getUID().toString())
-                            .name("x").value(loc.getX())
-                            .name("y").value(loc.getY())
-                            .name("z").value(loc.getZ())
-                            .name("yaw").value(loc.getYaw())
-                            .name("pitch").value(loc.getPitch())
-                            .endObject()
-
-                            .name("Closed").value(place.isClosed())
-                            .endObject();
-                }
-
-                writer.endArray();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return new File(dir, name);
         }
 
-        private void load(File file) {
-            try (JsonReader reader = new JsonReader(new FileReader(file))) {
-                reader.beginArray();
+        private void save(JsonWriter writer) throws IOException {
+            writer.beginArray();
 
-                while (reader.hasNext()) {
-                    Place place = nextPlace(reader);
+            for (Place place : places.values()) {
+                Location loc = place.getLocation();
 
-                    if (place != null) {
-                        addPlace(place);
-                    }
-                }
+                writer.beginObject()
+                        .name("name").value(place.getName())
 
-                reader.endArray();
-            } catch (IOException e) {
-                e.printStackTrace();
+                        .name("loc").beginObject()
+                        .name("world").value(loc.getWorld().getUID().toString())
+                        .name("x").value(loc.getX())
+                        .name("y").value(loc.getY())
+                        .name("z").value(loc.getZ())
+                        .name("yaw").value(loc.getYaw())
+                        .name("pitch").value(loc.getPitch())
+                        .endObject()
+
+                        .name("closed").value(place.isClosed())
+                        .endObject();
             }
+
+            writer.endArray();
+
+            modified = false;
+        }
+
+        private void load(JsonReader reader) throws IOException {
+            reader.beginArray();
+
+            while (reader.hasNext()) {
+                Place place = nextPlace(reader);
+
+                if (place != null) {
+                    addPlace(place);
+                }
+            }
+
+            reader.endArray();
 
             modified = false;
         }
@@ -284,7 +255,7 @@ public class PluginPlaceManager implements PlaceManager {
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
                     case "name" -> name = reader.nextString();
-                    case "location" -> loc = nextLocation(reader);
+                    case "loc" -> loc = nextLocation(reader);
                     case "closed" -> closed = reader.nextBoolean();
                     default -> reader.skipValue();
                 }
@@ -323,8 +294,7 @@ public class PluginPlaceManager implements PlaceManager {
 
             reader.endObject();
 
-            if ((world == null) || (x == null) || (y == null) || (z == null) ||
-                    (yaw == null) || (pitch == null)) {
+            if ((world == null) || (x == null) || (y == null) || (z == null)) {
                 return null;
             }
 

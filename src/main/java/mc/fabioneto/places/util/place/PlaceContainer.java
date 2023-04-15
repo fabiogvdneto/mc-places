@@ -1,13 +1,13 @@
-package mc.fabioneto.places;
+package mc.fabioneto.places.util.place;
 
 import org.bukkit.Location;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public interface Citizen {
+public interface PlaceContainer {
 
-    UUID getUID();
+    UUID getOwner();
 
     Collection<Place> getPlaces();
 

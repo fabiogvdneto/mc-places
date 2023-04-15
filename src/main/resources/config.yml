@@ -7,14 +7,18 @@ autosave: 5
 # Players will be purged when loading/saving data.
 ttl: 60
 # Maximum delay (in seconds) a teleportation may take. Can be adjusted with permissions.
+# Permission: 'places.delay.<seconds>', where (seconds < max-delay).
 max-delay: 5
+# Maximum home limit. Can be adjusted with permissions.
+# Permission: 'places.home-limit.<amount>', where (amount < max-home-limit).
+max-home-limit: 5
 # Should players be able to move during teleportation.
 movement-allowed: false
 # Should players be able to lose health during teleportation.
 damage-allowed: false
 # Command blocker during teleportation.
 cmd-blocker:
-  # Command-blocker mode: 0 to disable, 1 (positive) for whitelist and -1 (negative) for blacklist.
+  # Command-blocker: 0 to disable, 1 (positive) for whitelist and -1 (negative) for blacklist.
   mode: 1
   # List of commands to allow/deny (whitelist/blacklist).
   list: [ 'l', 'g', '.', 'a' ]

@@ -1,6 +1,6 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.Place;
+import mc.fabioneto.places.util.place.Place;
 import mc.fabioneto.places.PlacesPlugin;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
@@ -30,7 +30,7 @@ public class SetwarpCommandExecutor extends AbstractCommandExecutor<PlacesPlugin
             return;
         }
 
-        Place place = plugin.getPlaceManager().getCitizen(null).createPlace(args[0], p.getLocation());
+        Place place = plugin.getPlaceManager().getContainer(null).createPlace(args[0], p.getLocation());
 
         if (place == null) {
             translate("warp.already-exists").send(p);

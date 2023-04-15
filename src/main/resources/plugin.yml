@@ -6,10 +6,14 @@ commands:
   warps: { }
   setwarp: { }
   delwarp: { }
+  home: { }
+  homes: { }
+  sethome: { }
+  delhome: { }
 permissions:
-  warps.admin:
+  places.admin:
     default: op
     children:
-      warps.command.setwarp: true
-      warps.command.delwarp: true
-      warps.delay.0: true
+      places.command.setwarp: true
+      places.command.delwarp: true
+      places.delay.0: true

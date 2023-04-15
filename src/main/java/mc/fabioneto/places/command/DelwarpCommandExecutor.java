@@ -1,6 +1,5 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.Place;
 import mc.fabioneto.places.PlacesPlugin;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
@@ -29,10 +28,8 @@ public class DelwarpCommandExecutor extends AbstractCommandExecutor<PlacesPlugin
             translate("command.usage.delwarp").send(p);
             return;
         }
-
-        Place place = plugin.getPlaceManager().getCitizen(null).getPlace(args[0]);
-
-        if (place == null) {
+        
+        if (!plugin.getPlaceManager().getContainer(null).removePlace(args[0])) {
             translate("warp.not-found").send(p);
             return;
         }
