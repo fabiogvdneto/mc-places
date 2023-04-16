@@ -32,7 +32,7 @@ public class DelhomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin
             owner = plugin.getPlayerDatabase().fetchID(args[0]);
 
             if (owner == null) {
-                lang.translate("home.player-not-found").send(p);
+                lang.translate("command.player-not-found").send(p);
                 return;
             }
         } else {

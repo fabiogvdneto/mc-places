@@ -1,17 +1,13 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.util.place.Place;
 import mc.fabioneto.places.PlacesPlugin;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
-import mc.fabioneto.places.util.teleportation.Teleportation;
-import org.bukkit.Location;
+import mc.fabioneto.places.util.place.Place;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
@@ -31,16 +27,25 @@ public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
             return;
         }
 
-        UUID owner = (args.length > 1)
-                ? plugin.getPlayerDatabase().fetchID(args[1])
-                : p.getUniqueId();
+        Place home;
 
-        if (owner == null) {
-            lang.translate("home.player-not-found").send(p);
-            return;
+        if (args.length == 1) {
+            home = getPlace(p.getUniqueId(), args[0]);
+        } else {
+            UUID owner = plugin.getPlayerDatabase().fetchID(args[1]);
+
+            if (owner == null) {
+                lang.translate("command.player-not-found").send(p);
+                return;
+            }
+
+            home = getPlace(owner, args[0]);
+
+            if (home.isClosed() && !p.hasPermission("places.admin")) {
+                lang.translate("no-permission").send(p);
+                return;
+            }
         }
-
-        Place home = plugin.getPlaceManager().getContainer(owner).getPlace(args[0]);
 
         if (home == null) {
             lang.translate("home.not-found").send(p);
@@ -48,5 +53,9 @@ public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
         }
 
         plugin.getTeleporter().start(p, home);
+    }
+
+    private Place getPlace(UUID owner, String name) {
+        return plugin.getPlaceManager().getContainer(owner).getPlace(name);
     }
 }

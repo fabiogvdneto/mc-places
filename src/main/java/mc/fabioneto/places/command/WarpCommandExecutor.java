@@ -1,16 +1,11 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.util.place.Place;
 import mc.fabioneto.places.PlacesPlugin;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
-import mc.fabioneto.places.util.teleportation.Teleportation;
-import org.bukkit.Location;
+import mc.fabioneto.places.util.place.Place;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 public class WarpCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
@@ -32,15 +27,16 @@ public class WarpCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
         Place warp = plugin.getPlaceManager().getContainer(null).getPlace(args[0]);
 
-        if (isNotAvailable(p, warp)) {
-            lang.translate("warp.no-permission").send(p);
+        if (warp == null) {
+            lang.translate("warp.not-found").send(p);
+            return;
+        }
+
+        if (warp.isClosed() && !p.hasPermission("places.warp." + warp.getName())) {
+            lang.translate("warp.closed").send(p);
             return;
         }
 
         plugin.getTeleporter().start(p, warp);
-    }
-
-    private boolean isNotAvailable(Player p, Place warp) {
-        return warp.isClosed() && !p.hasPermission("places.warp." + warp.getName());
     }
 }

@@ -1,10 +1,10 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.util.place.Place;
-import mc.fabioneto.places.util.place.PlaceContainer;
 import mc.fabioneto.places.PlacesPlugin;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
+import mc.fabioneto.places.util.place.Place;
+import mc.fabioneto.places.util.place.PlaceContainer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -34,7 +34,7 @@ public class SethomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin
             owner = plugin.getPlayerDatabase().fetchID(args[0]);
 
             if (owner == null) {
-                lang.translate("home.player-not-found").send(p);
+                lang.translate("command.player-not-found").send(p);
                 return;
             }
         } else {
