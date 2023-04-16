@@ -1,6 +1,7 @@
 command:
   players-only: '&cOnly players can execute this command.'
   no-permission: '&cNo permission.'
+  player-not-found: '&cPlayer not found.'
   usage:
     setwarp: '&cUse &f/setwarp <name>&c.'
     delwarp: '&cUse &f/delwarp <name>&c.'
@@ -17,7 +18,6 @@ warp:
     separator: '&7, &f'
     empty: '&cThere are no warps available yet.'
 home:
-  player-not-found: '&cPlayer not found.'
   set: '&aHome set.'
   deleted: '&aHome deleted.'
   not-found: '&cHome not found.'
