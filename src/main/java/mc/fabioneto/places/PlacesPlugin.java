@@ -1,26 +1,32 @@
 package mc.fabioneto.places;
 
 import mc.fabioneto.places.command.*;
+import mc.fabioneto.places.data.JsonPlaceDatabase;
+import mc.fabioneto.places.data.Place;
+import mc.fabioneto.places.data.PlaceContainer;
+import mc.fabioneto.places.data.PlaceDatabase;
 import mc.fabioneto.places.util.CommandBlocker;
 import mc.fabioneto.places.util.PlayerDatabase;
 import mc.fabioneto.places.util.lang.PluginLanguage;
-import mc.fabioneto.places.util.place.JsonPlaceManager;
-import mc.fabioneto.places.util.place.PlaceManager;
-import mc.fabioneto.places.util.teleportation.PluginTeleporter;
+import mc.fabioneto.places.util.teleportation.*;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 public final class PlacesPlugin extends JavaPlugin {
 
     /* ---- Global Variables ---- */
 
-    private final PluginLanguage lang = new PluginLanguage(this, "languages" + File.separatorChar);
-    private final PlaceManager manager = new JsonPlaceManager();
+    private final PluginLanguage language = new PluginLanguage(this, "languages" + File.separatorChar);
+    private final PlaceDatabase placeDatabase = new JsonPlaceDatabase();
     private final PlayerDatabase playerDatabase = new PlayerDatabase(getLogger());
-    private final PlacesTeleporter teleporter = new PlacesTeleporter(this);
+    private final Teleporter teleporter = new PluginTeleporter(this);
     private final CommandBlocker cmdBlocker = new CommandBlocker();
 
     private File keysFile;
@@ -31,30 +37,7 @@ public final class PlacesPlugin extends JavaPlugin {
     /* ---- Getters ---- */
 
     public PluginLanguage getLanguage() {
-        return lang;
-    }
-
-    public PlaceManager getPlaceManager() {
-        return manager;
-    }
-
-    public PlayerDatabase getPlayerDatabase() {
-        return playerDatabase;
-    }
-
-    public PlacesTeleporter getTeleporter() {
-        return teleporter;
-    }
-
-    public CommandBlocker getCommandBlocker() {
-        return cmdBlocker;
-    }
-
-    /* ---- On Load ---- */
-
-    @Override
-    public void onLoad() {
-        Places.setPlugin(this);
+        return language;
     }
 
     /* ---- On Enable ---- */
@@ -89,12 +72,12 @@ public final class PlacesPlugin extends JavaPlugin {
     }
 
     private void loadManager() {
-        manager.load(placesFolder);
-        manager.setTimeToLive(getConfig().getInt("ttl"));
+        placeDatabase.load(placesFolder);
+        placeDatabase.setTimeToLive(getConfig().getInt("ttl"));
     }
 
     private void loadLanguage() {
-        lang.load(getConfig().getString("language"));
+        language.load(getConfig().getString("language"));
     }
 
     private void loadCommandBlocker() {
@@ -105,21 +88,21 @@ public final class PlacesPlugin extends JavaPlugin {
         cmdBlocker.setWhite(mode > 0);
         cmdBlocker.getList().addAll(getConfig().getStringList("cmd-blocker.list"));
         cmdBlocker.setFilter(p -> (teleporter.get(p.getUniqueId()) != null));
-        cmdBlocker.onBlock(p -> lang.translate("teleportation.cmd-blocked").send(p));
+        cmdBlocker.onBlock(p -> language.translate("teleportation.cmd-blocked").send(p));
 
         getServer().getPluginManager().registerEvents(cmdBlocker, this);
     }
 
     private void registerCommands() {
-        new WarpCommandExecutor(this, lang).register("warp");
-        new WarpsCommandExecutor(this, lang).register("warps");
-        new SetwarpCommandExecutor(this, lang).register("setwarp");
-        new DelwarpCommandExecutor(this, lang).register("delwarp");
+        new WarpCommandExecutor(this, language).register("warp");
+        new WarpsCommandExecutor(this, language).register("warps");
+        new SetwarpCommandExecutor(this, language).register("setwarp");
+        new DelwarpCommandExecutor(this, language).register("delwarp");
 
-        new HomeCommandExecutor(this, lang).register("home");
-        new HomesCommandExecutor(this, lang).register("homes");
-        new SethomeCommandExecutor(this, lang).register("sethome");
-        new DelhomeCommandExecutor(this, lang).register("delhome");
+        new HomeCommandExecutor(this, language).register("home");
+        new HomesCommandExecutor(this, language).register("homes");
+        new SethomeCommandExecutor(this, language).register("sethome");
+        new DelhomeCommandExecutor(this, language).register("delhome");
 
         new WarpTabCompleter(this).register("warp", "delwarp");
         new HomeTabCompleter(this).register("home", "delhome");
@@ -138,8 +121,7 @@ public final class PlacesPlugin extends JavaPlugin {
         long ticks = (long) minutes * 60 * 20;
 
         this.autosave = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
-                () -> manager.save(placesFolder),
-        ticks, ticks);
+                () -> placeDatabase.save(placesFolder), ticks, ticks);
     }
 
     /* ---- On Disable ---- */
@@ -148,15 +130,93 @@ public final class PlacesPlugin extends JavaPlugin {
     public void onDisable() {
         autosave(0);
 
-        manager.save(placesFolder);
+        placeDatabase.save(placesFolder);
         playerDatabase.save(keysFile);
 
-        manager.setTimeToLive(0);
+        placeDatabase.setTimeToLive(0);
     }
 
     /* ---- Utils ---- */
 
     private File newFile(String name) {
         return new File(getDataFolder(), name);
+    }
+
+    /* ---- Places ---- */
+
+    public PlaceContainer getContainer(UUID owner) {
+        return placeDatabase.getContainer(owner);
+    }
+
+    public PlaceContainer getHomeContainer(UUID owner) {
+        return (owner == null) ? null : getContainer(owner);
+    }
+
+    public PlaceContainer getHomeContainer(String owner) {
+        return getHomeContainer(playerDatabase.fetchID(owner));
+    }
+
+    public PlaceContainer getWarpContainer() {
+        return getContainer(null);
+    }
+
+    public boolean hasWarpPermission(CommandSender sender, String warp) {
+        return sender.hasPermission("places.warp." + warp);
+    }
+
+    public boolean hasAdminPermission(CommandSender sender) {
+        return sender.hasPermission("places.admin");
+    }
+
+    public int getHomeLimit(Player player) {
+        int limit = getConfig().getInt("max-home-limit");
+
+        while (!player.hasPermission("places.home-limit." + limit) && (--limit > 0)) ;
+
+        return limit;
+    }
+
+    /* ---- Teleportation ---- */
+
+    public void teleport(Player player, Place place) {
+        int delay = computeTeleportationDelay(player);
+
+        Teleportation teleportation = teleporter.create(player, place.getLocation(), delay);
+
+        if (!isMovementAllowed()) {
+            String feedback = language.translate("teleportation.movement-not-allowed").getContent();
+
+            teleportation.addCallback(MovementDetector.cancelWithFeedback(feedback));
+        }
+
+        if (!isDamageAllowed()) {
+            String feedback = language.translate("teleportation.damage-not-allowed").getContent();
+
+            teleportation.addCallback(DamageDetector.cancelWithFeedback(feedback));
+        }
+
+        teleportation.addCallback(t -> {
+            if (t.getCounter() == 0) {
+                language.translate("teleportation.finished").format(place.getName()).send(t.getPlayer());
+            } else {
+                language.translate("teleportation.countdown").format(t.getCounter()).send(t.getPlayer());
+            }
+        });
+
+        teleportation.start();
+    }
+
+    private int computeTeleportationDelay(Player player) {
+        int max = getConfig().getInt("max-delay");
+
+        return IntStream.range(0, max).filter(i -> player.hasPermission("places.delay." + i)).findFirst().orElse(max);
+    }
+
+    private boolean isMovementAllowed() {
+        return getConfig().getBoolean("movement-allowed");
+    }
+
+    private boolean isDamageAllowed() {
+        return getConfig().getBoolean("damage-allowed");
     }
 }

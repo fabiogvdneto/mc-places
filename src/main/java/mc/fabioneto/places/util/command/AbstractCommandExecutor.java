@@ -30,16 +30,21 @@ public abstract class AbstractCommandExecutor<T extends JavaPlugin> implements C
         }
     }
 
-    protected Message translate(String key) {
+    protected Message message(String key) {
         return lang.translate(key);
     }
+
+    public abstract Message onCommand(CommandSender sender, String label, String[] args);
 
     @Override
     public final boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd,
                                    @NotNull String label, @NotNull String[] args) {
-        onCommand(sender, label, args);
+        Message msg = onCommand(sender, label, args);
+
+        if (msg != null) {
+            msg.send(sender);
+        }
+
         return true;
     }
-
-    public abstract void onCommand(CommandSender sender, String label, String[] args);
 }

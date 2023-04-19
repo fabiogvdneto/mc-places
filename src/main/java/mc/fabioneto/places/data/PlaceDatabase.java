@@ -1,9 +1,9 @@
-package mc.fabioneto.places.util.place;
+package mc.fabioneto.places.data;
 
 import java.io.File;
 import java.util.UUID;
 
-public interface PlaceManager {
+public interface PlaceDatabase {
 
     PlaceContainer getContainer(UUID uid);
 

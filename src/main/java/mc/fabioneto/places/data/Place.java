@@ -1,4 +1,4 @@
-package mc.fabioneto.places.util.place;
+package mc.fabioneto.places.data;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

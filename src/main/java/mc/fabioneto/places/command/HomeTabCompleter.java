@@ -1,7 +1,8 @@
 package mc.fabioneto.places.command;
 
-import mc.fabioneto.places.util.place.Place;
 import mc.fabioneto.places.PlacesPlugin;
+import mc.fabioneto.places.data.Place;
+import mc.fabioneto.places.data.PlaceContainer;
 import mc.fabioneto.places.util.command.AbstractTabCompleter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,13 +18,24 @@ public class HomeTabCompleter extends AbstractTabCompleter<PlacesPlugin> {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
-        if ((args.length != 1) || !(sender instanceof Player p)) {
+        if ((args.length > 2) || !(sender instanceof Player p)) {
             return Collections.emptyList();
         }
 
-        return plugin.getPlaceManager().getContainer(p.getUniqueId()).getPlaces().stream()
+        PlaceContainer container;
+        String prefix;
+
+        if (args.length == 1) {
+            container = plugin.getHomeContainer(p.getUniqueId());
+            prefix = args[0];
+        } else {
+            container = plugin.getHomeContainer(args[0]);
+            prefix = args[1];
+        }
+
+        return (container == null) ? Collections.emptyList() : container.getPlaces().stream()
                 .map(Place::getName)
-                .filter(name -> name.startsWith(args[0]))
+                .filter(name -> name.startsWith(prefix))
                 .toList();
     }
 }

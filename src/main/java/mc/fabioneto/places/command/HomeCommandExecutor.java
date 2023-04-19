@@ -1,13 +1,13 @@
 package mc.fabioneto.places.command;
 
 import mc.fabioneto.places.PlacesPlugin;
+import mc.fabioneto.places.data.Place;
+import mc.fabioneto.places.data.PlaceContainer;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
-import mc.fabioneto.places.util.place.Place;
+import mc.fabioneto.places.util.lang.Message;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
@@ -16,46 +16,39 @@ public class HomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public Message onCommand(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            lang.translate("command.players-only").send(sender);
-            return;
+            return message("command.players-only");
         }
 
         if (args.length == 0) {
             p.performCommand("homes");
-            return;
+            return null;
         }
 
         Place home;
 
         if (args.length == 1) {
-            home = getPlace(p.getUniqueId(), args[0]);
+            home = plugin.getHomeContainer(p.getUniqueId()).getPlace(args[0]);
         } else {
-            UUID owner = plugin.getPlayerDatabase().fetchID(args[1]);
+            PlaceContainer container = plugin.getHomeContainer(args[0]);
 
-            if (owner == null) {
-                lang.translate("command.player-not-found").send(p);
-                return;
+            if (container == null) {
+                return message("command.player-not-found");
             }
 
-            home = getPlace(owner, args[0]);
+            home = container.getPlace(args[1]);
 
-            if (home.isClosed() && !p.hasPermission("places.admin")) {
-                lang.translate("no-permission").send(p);
-                return;
+            if (home.isClosed() && !plugin.hasAdminPermission(p)) {
+                return message("home.closed");
             }
         }
 
         if (home == null) {
-            lang.translate("home.not-found").send(p);
-            return;
+            return message("home.not-found");
         }
 
-        plugin.getTeleporter().start(p, home);
-    }
-
-    private Place getPlace(UUID owner, String name) {
-        return plugin.getPlaceManager().getContainer(owner).getPlace(name);
+        plugin.teleport(p, home);
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package mc.fabioneto.places.util.place;
+package mc.fabioneto.places.data;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class JsonPlaceManager implements PlaceManager {
+public class JsonPlaceDatabase implements PlaceDatabase {
 
     private final Map<UUID, MemPlaceContainer> cache = new HashMap<>();
 

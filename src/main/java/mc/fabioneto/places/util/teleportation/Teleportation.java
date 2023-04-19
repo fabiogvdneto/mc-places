@@ -23,6 +23,6 @@ public interface Teleportation {
 
     void updateCounter(int seconds);
 
-    void onCountdown(Consumer<Teleportation> callback);
+    void addCallback(Consumer<Teleportation> callback);
 
 }

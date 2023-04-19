@@ -1,14 +1,13 @@
 package mc.fabioneto.places.command;
 
 import mc.fabioneto.places.PlacesPlugin;
+import mc.fabioneto.places.data.Place;
+import mc.fabioneto.places.data.PlaceContainer;
 import mc.fabioneto.places.util.command.AbstractCommandExecutor;
 import mc.fabioneto.places.util.lang.Language;
-import mc.fabioneto.places.util.place.Place;
-import mc.fabioneto.places.util.place.PlaceContainer;
+import mc.fabioneto.places.util.lang.Message;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class SethomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin> {
 
@@ -17,56 +16,35 @@ public class SethomeCommandExecutor extends AbstractCommandExecutor<PlacesPlugin
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public Message onCommand(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            lang.translate("command.players-only").send(sender);
-            return;
+            return message("command.players-only");
         }
 
         if (args.length == 0) {
-            lang.translate("command.usage.sethome").send(sender);
-            return;
+            return message("command.usage.sethome");
         }
 
-        UUID owner;
+        PlaceContainer container;
 
-        if ((args.length > 1) && p.hasPermission("places.admin")) {
-            owner = plugin.getPlayerDatabase().fetchID(args[0]);
+        if ((args.length > 1) && plugin.hasAdminPermission(p)) {
+            container = plugin.getHomeContainer(args[0]);
 
-            if (owner == null) {
-                lang.translate("command.player-not-found").send(p);
-                return;
+            if (container == null) {
+                return message("command.player-not-found");
             }
         } else {
-            owner = p.getUniqueId();
+            container = plugin.getHomeContainer(p.getUniqueId());
         }
 
-        int limit = computeLimit(p);
-
-        PlaceContainer container = plugin.getPlaceManager().getContainer(owner);
+        int limit = plugin.getHomeLimit(p);
 
         if (container.getPlaces().size() >= limit) {
-            lang.translate("home.limit-reached").format(limit).send(p);
-            return;
+            return message("home.limit-reached").format(limit);
         }
 
         Place place = container.createPlace(args[0], p.getLocation());
 
-        if (place == null) {
-            lang.translate("home.already-exists").send(p);
-            return;
-        }
-
-        lang.translate("home.set").send(p);
-    }
-
-    private int computeLimit(Player player) {
-        for (int limit = plugin.getConfig().getInt("max-home-limit"); limit > 0; limit--) {
-            if (player.hasPermission("places.home-limit." + limit)) {
-                return limit;
-            }
-        }
-
-        return 0;
+        return message((place == null) ? "home.already-exists" : "home.set");
     }
 }

@@ -1,6 +1,5 @@
 package mc.fabioneto.places.util.teleportation;
 
-import mc.fabioneto.places.Places;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -40,12 +39,12 @@ public class PluginTeleporter implements Teleporter {
 
     private class PluginTeleportation extends BukkitRunnable implements Teleportation {
 
+        private final List<Consumer<Teleportation>> callbacks = new LinkedList<>();
+
         private final Player player;
         private final Location dest;
 
         private int counter;
-
-        private Consumer<Teleportation> onCountdown = (t -> { });
 
         private PluginTeleportation(Player player, Location dest, int delay) {
             this.player = Objects.requireNonNull(player);
@@ -65,9 +64,11 @@ public class PluginTeleporter implements Teleporter {
 
         @Override
         public void run() {
-            onCountdown.accept(this);
+            for (Consumer<Teleportation> callback : callbacks) {
+                callback.accept(this);
 
-            if (isCancelled()) return;
+                if (isCancelled()) return;
+            }
 
             if (counter-- == 0) {
                 player.teleport(dest);
@@ -109,8 +110,8 @@ public class PluginTeleporter implements Teleporter {
         }
 
         @Override
-        public void onCountdown(Consumer<Teleportation> callback) {
-            this.onCountdown = Objects.requireNonNull(callback);
+        public void addCallback(Consumer<Teleportation> callback) {
+            this.callbacks.add(callback);
         }
     }
 }
