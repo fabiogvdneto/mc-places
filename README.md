@@ -47,24 +47,6 @@ Open homes are available to anyone through `/home <name> <player>`.
 | `tpdeny [player]`      | Deny a teleportation request.             |
 | `tpcancel`             | Cancel the teleportation.                 |
 
-```
-/spawn
-/setspawn
-/warp <name>
-/warps
-/setwarp <name>
-/delwarp <name>
-/home <name>
-/homes
-/sethome <name>
-/delhome <name>
-/tpa <player>
-/tphere <player>
-/tpaccept
-/tpdeny
-/tpcancel
-```
-
 ### Permissions
 
 | Name                              | Description                                             |
