@@ -1,7 +1,9 @@
-main: mc.fabioneto.places.PlacesPlugin
 name: Places
-version: 1.19
+version: '${project.version}'
+main: me.fabiogvdneto.places.PlacesPlugin
+api-version: '1.21'
 commands:
+  spawn: { }
   warp: { }
   warps: { }
   setwarp: { }
@@ -10,10 +12,35 @@ commands:
   homes: { }
   sethome: { }
   delhome: { }
+  tpa: { }
+  tphere: { }
+  tpaccept: { }
+  tpdeny: { }
+  tpcancel: { }
+  back: { }
 permissions:
   places.admin:
+    description: "Grants all plugin permissions."
     default: op
     children:
+      places.teleporter.delay.0: true
+      places.homes.limit.max: true
       places.command.setwarp: true
       places.command.delwarp: true
-      places.delay.0: true
+      places.command.tphere: true
+      places.command.back: true
+  places.basics:
+    description: "Grants basic permissions for everyone."
+    default: not op
+    children:
+      places.command.spawn: true
+      places.command.warps: true
+      places.command.homes: true
+      places.command.warp: true
+      places.command.home: true
+      places.command.delhome: true
+      places.command.sethome: true
+      places.command.tpa: true
+      places.command.tpaccept: true
+      places.command.tpdeny: true
+      places.homes.limit.max: true

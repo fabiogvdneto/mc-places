@@ -1,24 +1,40 @@
-# Languages currently available: 'en', 'pt'.
-language: 'en'
-# Autosave, in minutes (0 to disable).
-autosave: 5
-# TTL (time-to-live) in days.
-# How many days a player can be offline before being purged/removed from database (0 to disable).
-# Players will be purged when loading/saving data.
-ttl: 60
-# Maximum delay (in seconds) a teleportation may take. Can be adjusted with permissions.
-# Permission: 'places.delay.<seconds>', where (seconds < max-delay).
-max-delay: 5
-# Maximum home limit. Can be adjusted with permissions.
-# Permission: 'places.home-limit.<amount>', where (amount < max-home-limit).
-max-home-limit: 5
-# Should players be able to move during teleportation.
-movement-allowed: false
-# Should players be able to lose health during teleportation.
-damage-allowed: false
-# Command blocker during teleportation.
-cmd-blocker:
-  # Command-blocker: 0 to disable, 1 (positive) for whitelist and -1 (negative) for blacklist.
-  mode: 1
-  # List of commands to allow/deny (whitelist/blacklist).
-  list: [ 'l', 'g', '.', 'a' ]
+# Options available: 'en' | 'pt'.
+lang: 'en'
+teleporter:
+  # Maximum delay a teleportation may take, in seconds.
+  # This value works together with the permission 'places.teleporter.delay.<0::max-delay>'.
+  max-delay-seconds: 5
+  # If false, ongoing teleportations will be cancelled if movement is detected.
+  movement-allowed: false
+  # If false, ongoing teleportations will be cancelled if damage is detected.
+  damage-allowed: false
+  # Choose which commands are allowed during teleportation.
+  # Options available: 'true' | 'false' | 'whitelist' | 'blacklist'.
+  # Default is blacklist.
+  commands-allowed: 'whitelist'
+  command-list: [ 'a', 'f', 'g', '.' ]
+warps:
+  # Autosave in minutes.
+  # Options: <integer>.
+  autosave-minutes: 30
+homes:
+  # Maximum number of homes a player may own.
+  # This value works together with the permission 'places.homes.limit.<0::max-homes>'.
+  # Options: <integer>.
+  max-limit: 5
+users:
+  # How many days a player may be offline before their data is wiped out.
+  # Options: <integer>
+  purge-days: 80
+  # Autosave in minutes.
+  # Options: <integer>.
+  autosave-minutes: 15
+tpask:
+  # Duration in seconds until a teleportation request expires.
+  # Options: <integer>.
+  duration-seconds: 75
+  # Minimum delay a teleportation may take, in seconds.
+  # This allows every player to cancel the teleportation if they don't want
+  # to teleport at the moment the request was accepted.
+  # Options: <integer>
+  min-delay-seconds: 3

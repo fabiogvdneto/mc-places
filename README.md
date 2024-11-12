@@ -1,63 +1,86 @@
-## Description
+# Introduction
 
-Places is a minecraft plugin which allows server administrators to save important locations (warps) so that players can
-teleport to them later.
-Your players can also save their own locations (homes).
-Every place (warp or home) can be either open (everyone can teleport to it) or closed (limited to some players).
-Warps are global places, meaning they are not owned by someone.
-In the other hand, homes are private property and if closed, only the owner and server administrators can teleport to
-it.
+Places is a minecraft plugin that aims to provide the ability for a
+player to teleport to other places, which are identified by a name,
+and can be a warp, home, or any online player.
 
-## Features
+A **warp** is a public place and can only be set by server administrators.
+Warps are closed by default, which means administrators and players with
+the right permission can teleport to it. Open warps are available to
+everyone.
 
-- Support for places (warps and homes).
-- Places can either be open (public) or closed (private).
-- Delayed teleportation with per-second feedback.
-- Movement and damage detection.
-- Active command blocker.
-- All messages customizable.
-- Prefix `/warp` is optional (example: `/warp spawn` or `/spawn`).
-- JSON messages when listing warps/homes or teleporting.
+A **home** is a private place and can be set by anyone. Homes are closed
+by default, meaning only administrators and their owner can teleport to it.
+Open homes are available to anyone through `/home <name> <player>`.
 
-## Commands
+### Features
 
-| Syntax                    | Description                       |
-|:--------------------------|:----------------------------------|
-| home \<name> \[player]    | Teleport you to (your) home.      |
-| homes \[player]           | List all (your) homes.            |
-| sethome \<name> \[player] | Create new home.                  |
-| delhome \<name> \[player] | Delete home.                      |
-| warp \<name>              | Teleport to warp.                 |
-| warps                     | List all warps available for you. |
-| setwarp \<name>           | Create new warp.                  |
-| delwarp \<name>           | Delete warp.                      |
+- Warps (public places).
+- Homes (private places).
+- Permission-based home limit.
+- Permission-based teleportation delay/warmup.
+- Efficient detection of movement and damage during teleportation.
+- Prevent command execution while teleporting.
+- Cancel teleportation before it happens.
+- Send teleportation requests to other players (/tpa).
+- Auto-save warps and homes.
+- Auto-purge user data.
+- All messages are customizable.
+- All messages support json-style formatting (powered by Adventure API).
 
-## Permissions
+### Commands
 
-| Key                     | Description                                              |
-|-------------------------|----------------------------------------------------------|
-| places.limit.\<integer> | The maximum number of homes the player can own.          |
-| places.delay.\<seconds> | The amount of time each teleportation will take.         |
-| places.warp.\<name>     | Allows the player to teleport to the warp named \<name>. |
-| places.command.setwarp  | Allows the use of setwarp.                               |
-| places.command.delwarp  | Allows the use of delwarp.                               |
+| Name                   | Description                               |
+|------------------------|-------------------------------------------|
+| `spawn`                | Teleport to the spawn.                    |
+| `warps`                | List all warps available to you.          |
+| `warp <name>`          | Teleport to the specified warp.           |
+| `setwarp <name>`       | Create a new warp.                        |
+| `delwarp <name>`       | Delete a warp.                            |
+| `homes`                | List all your homes.                      |
+| `home <name> [player]` | Teleport to the specified home.           |
+| `sethome <name>`       | Create a new (private) home.              |
+| `delhome <name>`       | Delete a home.                            |
+| `tpa <player>`         | Send a teleportation request to a player. |
+| `tphere <player>`      | Teleport a player to your location.       |
+| `tpaccept [player]`    | Accept a teleportation request.           |
+| `tpdeny [player]`      | Deny a teleportation request.             |
+| `tpcancel`             | Cancel the teleportation.                 |
 
-## Configuration (settings.yml)
+```
+/spawn
+/setspawn
+/warp <name>
+/warps
+/setwarp <name>
+/delwarp <name>
+/home <name>
+/homes
+/sethome <name>
+/delhome <name>
+/tpa <player>
+/tphere <player>
+/tpaccept
+/tpdeny
+/tpcancel
+```
 
-| Entry              |     Type     | Description                                                                  |
-|--------------------|:------------:|------------------------------------------------------------------------------|
-| language           |    string    | Which language to use.                                                       |
-| max-home-limit     |   integer    | The maximum number of homes a player can have. See `places.limit.<integer>`. |
-| max-delay          |   integer    | The maximum delay a teleportation can take. See `places.delay.<seconds>`.    |
-| movement-allowed   |   boolean    | If false, movement will not be allowed during teleportation.                 |
-| damage-allowed     |   boolean    | If false, damage will not be allowed during teleportation.                   |
-| cmdblocker.enabled |   integer    | 0 to disable, 1 for whitelist and -1 for blacklist.                          |
-| cmdblocker.list    | string array | List of commands to block (or not).                                          |
+### Permissions
 
-## Files
+| Name                              | Description                                             |
+|-----------------------------------|---------------------------------------------------------|
+| places.admin                      | All permissions.                                        |
+| places.command.setwarp            | Allow to execute /setwarp.                              |
+| places.command.delwarp            | Allow to execute /delwarp.                              |
+| places.command.delhome.others     | Allow to execute /delhome to other players.             |
+| places.command.sethome.others     | Allow to execute /sethome to other players.             |
+| places.command.tpa                | Allow to execute /tpa.                                  |
+| places.command.tphere             | Allow to execute /tphere.                               |
+| places.warps.warp.<name>          | Allow to teleport to <name> even if the warp is closed. |
+| places.homes.limit.<number>       | Allow to create a maximum of <number> homes.            |
+| places.teleporter.delay.<seconds> | Wait <seconds> before actually teleporting.             |
 
-| Filename             | Description                      |
-|----------------------|----------------------------------|
-| settings.yml         | All settings can be found here.  |
-| homes.json           | Where data is stored.            |
-| language-\<code>.yml | Messages can be customized here. |
+### TODO
+
+- Toggle (disable/enable) teleportation requests.
+- Ignore teleportation requests from specific players.
