@@ -45,9 +45,8 @@ public class PluginTeleporter implements Teleporter {
     }
 
     @Override
-    public Teleportation back(Player recipient) {
-        Location destination = previous.get(recipient.getUniqueId());
-        return (destination == null) ? null : create(recipient, destination);
+    public Location back(Player recipient) {
+        return previous.get(recipient.getUniqueId());
     }
 
     public void registerCommandListener(Predicate<String> filter) {

@@ -11,6 +11,7 @@ import me.fabiogvdneto.places.module.TeleportationModule;
 import me.fabiogvdneto.places.module.TranslationModule;
 import me.fabiogvdneto.places.module.user.UserModule;
 import me.fabiogvdneto.places.module.warp.WarpModule;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -94,7 +95,7 @@ public final class PlacesPlugin extends JavaPlugin {
 
     /* ---- Teleportation ---- */
 
-    private void setup(Teleportation instance, int delay) {
+    private void warmup(Teleportation instance, int delay) {
         if (!settings.isMovementAllowedWhileTeleporting()) {
             instance.onMovement(task -> {
                 task.cancel();
@@ -119,13 +120,28 @@ public final class PlacesPlugin extends JavaPlugin {
     }
 
     public void teleport(Player player, Place dest) {
-        Teleportation instance = teleportations.create(player, dest::getLocation);
-
         messages.teleportationStarted(player, dest.getName());
-        setup(instance, settings.getTeleporterDelay(player));
+
+        int delay = settings.getTeleporterDelay(player);
+
+        if (delay <= 0) {
+            player.teleport(dest.getLocation());
+            return;
+        }
+
+        warmup(teleportations.create(player, dest::getLocation), delay);
     }
 
     public void teleport(Player player, Player dest) {
+        messages.teleportationStarted(player, dest.getName());
+
+        int delay = settings.getTeleporterDelayForTpa(player);
+
+        if (delay <= 0) {
+            player.teleport(dest.getLocation());
+            return;
+        }
+
         Teleportation instance = teleportations.create(player, () -> {
             if (player.isOnline()) {
                 if (dest.isOnline()) {
@@ -136,15 +152,21 @@ public final class PlacesPlugin extends JavaPlugin {
             return null;
         });
 
-        messages.teleportationStarted(player, dest.getName());
-        setup(instance, settings.getTeleporterDelayForTpa(player));
+        warmup(instance, delay);
     }
 
     public void teleportBack(Player player) throws IllegalStateException {
-        Teleportation instance = teleportations.back(player);
+        Location prev = teleportations.back(player);
 
-        if (instance == null) throw new IllegalStateException("cannot go back");
+        if (prev == null) throw new IllegalStateException("cannot go back");
 
-        setup(instance, settings.getTeleporterDelay(player));
+        int delay = settings.getTeleporterDelay(player);
+
+        if (delay <= 0) {
+            player.teleport(prev);
+            return;
+        }
+
+        warmup(teleportations.create(player, prev), delay);
     }
 }

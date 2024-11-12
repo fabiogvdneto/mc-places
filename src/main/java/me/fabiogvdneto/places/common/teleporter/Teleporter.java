@@ -16,6 +16,6 @@ public interface Teleporter {
 
     Teleportation create(Player recipient, Supplier<Location> dest);
 
-    Teleportation back(Player recipient);
+    Location back(Player recipient);
 
 }

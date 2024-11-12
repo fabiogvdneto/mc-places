@@ -44,7 +44,7 @@ public class TeleportationModule implements PlacesModule, Teleporter {
     }
 
     @Override
-    public Teleportation back(Player recipient) {
+    public Location back(Player recipient) {
         return teleporter.back(recipient);
     }
 
