@@ -27,13 +27,13 @@ public class CommandTpa extends CommandHandler<PlacesPlugin> {
             requirePermission(sender, "places.command.tpa");
             requireArguments(args, 1);
 
-            if (sender.getName().equals(args[0])) {
+            Player player = (Player) sender;
+            Player target = parsePlayer(args, 0);
+
+            if (player == target) {
                 plugin.getMessages().teleportationRequestYourself(sender);
                 return;
             }
-
-            Player player = (Player) sender;
-            Player target = parsePlayer(args, 0);
 
             plugin.getUsers().fetch(target.getUniqueId(), user -> {
                 try {
