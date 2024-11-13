@@ -24,40 +24,38 @@ public interface Teleportation {
     Teleportation onCountdown(Consumer<Teleportation> callback);
 
     default Teleportation onMovement(Consumer<Teleportation> callback) {
-        onCountdown(new Consumer<>() {
+        return onCountdown(new Consumer<>() {
             private static final double THRESHOLD = 0.02;
             private Location location;
 
             @Override
-            public void accept(Teleportation teleportation) {
-                Location newLocation = teleportation.getRecipient().getLocation();
+            public void accept(Teleportation instance) {
+                Location newLocation = instance.getRecipient().getLocation();
 
                 if (location == null) {
                     location = newLocation.clone();
-                } else if (newLocation.distanceSquared(location) > THRESHOLD) {
-                    callback.accept(teleportation);
+                } else if (location.distanceSquared(newLocation) > THRESHOLD) {
+                    callback.accept(instance);
                 }
             }
         });
-        return this;
     }
 
     default Teleportation onDamage(Consumer<Teleportation> callback) {
-        onCountdown(new Consumer<>() {
+        return onCountdown(new Consumer<>() {
             private double healthTracker;
 
             @Override
-            public void accept(Teleportation teleportation) {
-                double health = teleportation.getRecipient().getHealth();
+            public void accept(Teleportation instance) {
+                double health = instance.getRecipient().getHealth();
 
                 if (health < healthTracker) {
-                    callback.accept(teleportation);
+                    callback.accept(instance);
                 }
 
                 healthTracker = health;
             }
         });
-        return this;
     }
 
 }

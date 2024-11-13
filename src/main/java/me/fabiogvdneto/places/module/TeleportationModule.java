@@ -50,7 +50,7 @@ public class TeleportationModule implements PlacesModule, Teleporter {
 
     @Override
     public void enable() {
-        teleporter.registerCommandListener(buildCommandFilter());
+        teleporter.setCommandBlocker(buildCommandFilter());
     }
 
     private Predicate<String> buildCommandFilter() {
@@ -58,20 +58,20 @@ public class TeleportationModule implements PlacesModule, Teleporter {
         final Set<String> list = plugin.getSettings().getTeleportationCommandList();
 
         return switch (allowed) {
-            // True: all commands allowed (no need to register command blocker).
-            case "true" -> null;
-            // False: no commands allowed (block everything).
-            case "false" -> (cmd -> false);
+            // Blacklist: block everything in the list.
+            case "blacklist" -> (list::contains);
             // Whitelist: block everything not in the list.
             case "whitelist" -> (cmd -> !list.contains(cmd));
-            // Blacklist: block everything in the list.
-            default -> (list::contains);
+            // False: block everything.
+            case "false"     -> (cmd -> false);
+            // Unknown value: allow all commands (no need to register command blocker).
+            default -> null;
         };
     }
 
     @Override
     public void disable() {
-        teleporter.unregisterCommandListener();
+        teleporter.setCommandBlocker(null);
         teleporter = null;
     }
 }
