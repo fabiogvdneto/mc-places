@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.permissions.Permissible;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class SettingsModule implements PlacesModule {
@@ -65,7 +66,9 @@ public final class SettingsModule implements PlacesModule {
     }
 
     public Set<String> getTeleportationCommandList() {
-        return Set.copyOf(config().getStringList("teleporter.command-list"));
+        return config().getStringList("teleporter.command-list").stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public int getTeleportationRequestDuration() {

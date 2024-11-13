@@ -10,9 +10,9 @@ teleporter:
   damage-allowed: false
   # Choose which commands are allowed during teleportation.
   # Options available: 'true' | 'false' | 'whitelist' | 'blacklist'.
-  # Default is blacklist.
+  # Default is whitelist.
   commands-allowed: 'whitelist'
-  command-list: [ 'a', 'f', 'g', '.' ]
+  command-list: [ 'a', 'f', 'g', '.', 'tell', 'tpcancel' ]
 warps:
   # Autosave in minutes.
   # Options: <integer>.

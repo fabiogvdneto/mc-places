@@ -104,7 +104,7 @@ public class PluginTeleporter implements Teleporter {
 
         @Override
         public void begin() throws IllegalStateException {
-            if (counter < 0)
+            if (counter > 0)
                 throw new IllegalStateException("the teleportation has already started");
 
             this.counter = delay;
@@ -186,7 +186,15 @@ public class PluginTeleporter implements Teleporter {
     private record CommandBlocker(Set<UUID> targets, Predicate<String> filter) implements Listener {
         @EventHandler
         public void onEvent(PlayerCommandPreprocessEvent e) {
-            if (targets.contains(e.getPlayer().getUniqueId()) && filter.test(e.getMessage())) {
+            if (!targets.contains(e.getPlayer().getUniqueId())) return;
+
+            String msg = e.getMessage();
+
+            if (msg.charAt(0) != '/') return;
+
+            int end = msg.indexOf(' ');
+
+            if (filter.test((end == -1) ? msg.substring(1) : msg.substring(1, end))) {
                 e.setCancelled(true);
             }
         }

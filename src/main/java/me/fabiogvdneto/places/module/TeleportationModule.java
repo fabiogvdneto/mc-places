@@ -57,13 +57,16 @@ public class TeleportationModule implements PlacesModule, Teleporter {
         final String allowed = plugin.getSettings().getTeleportationCommandsAllowed().toLowerCase();
         final Set<String> list = plugin.getSettings().getTeleportationCommandList();
 
+        System.out.println(allowed);
+        System.out.println(list);
+
         return switch (allowed) {
             // Blacklist: block everything in the list.
-            case "blacklist" -> (list::contains);
+            case "blacklist" -> (cmd ->  list.contains(cmd.toLowerCase()));
             // Whitelist: block everything not in the list.
-            case "whitelist" -> (cmd -> !list.contains(cmd));
+            case "whitelist" -> (cmd -> !list.contains(cmd.toLowerCase()));
             // False: block everything.
-            case "false"     -> (cmd -> false);
+            case "false"     -> (cmd -> true);
             // Unknown value: allow all commands (no need to register command blocker).
             default -> null;
         };

@@ -43,4 +43,5 @@ permissions:
       places.command.tpa: true
       places.command.tpaccept: true
       places.command.tpdeny: true
+      places.command.tpcancel: true
       places.homes.limit.max: true
