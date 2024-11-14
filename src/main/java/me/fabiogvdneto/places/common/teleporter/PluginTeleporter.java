@@ -15,9 +15,9 @@ import java.util.function.Supplier;
 
 public class PluginTeleporter implements Teleporter {
 
-    final Plugin plugin;
-    final Map<UUID, Teleportation> ongoing = new HashMap<>();
-    final Map<UUID, Location> previous = new HashMap<>();
+    private final Plugin plugin;
+    private final Map<UUID, Teleportation> ongoing = new HashMap<>();
+    private final Map<UUID, Location> previous = new HashMap<>();
     private CommandBlocker commandBlocker;
 
     public PluginTeleporter(Plugin plugin) {
@@ -53,7 +53,7 @@ public class PluginTeleporter implements Teleporter {
         return previous.get(recipient.getUniqueId());
     }
 
-    public void setCommandBlocker(Predicate<String> filter) {
+    public void setCommandFilter(Predicate<String> filter) {
         if (commandBlocker != null) {
             PlayerCommandPreprocessEvent.getHandlerList().unregister(commandBlocker);
             this.commandBlocker = null;

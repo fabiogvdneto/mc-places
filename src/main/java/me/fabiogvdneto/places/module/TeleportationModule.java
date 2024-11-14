@@ -50,7 +50,7 @@ public class TeleportationModule implements PlacesModule, Teleporter {
 
     @Override
     public void enable() {
-        teleporter.setCommandBlocker(buildCommandFilter());
+        teleporter.setCommandFilter(buildCommandFilter());
     }
 
     private Predicate<String> buildCommandFilter() {
@@ -74,7 +74,7 @@ public class TeleportationModule implements PlacesModule, Teleporter {
 
     @Override
     public void disable() {
-        teleporter.setCommandBlocker(null);
+        teleporter.setCommandFilter(null);
         teleporter = null;
     }
 }
