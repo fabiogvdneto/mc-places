@@ -40,6 +40,10 @@ public final class SettingsModule implements PlacesModule {
         return plugin.getConfig();
     }
 
+    public String getLanguageCode() {
+        return config().getString("lang");
+    }
+
     public int getTeleporterDelay(Permissible perm) {
         int max = config().getInt("teleporter.max-delay-seconds");
 

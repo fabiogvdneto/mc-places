@@ -1,12 +1,15 @@
 package me.fabiogvdneto.places.common.i18n;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractTranslator implements Translator {
 
-    protected final Map<String, String> translations = new HashMap<>();
+    protected final Map<String, String> translations;
+
+    protected AbstractTranslator(Map<String, String> map) {
+        this.translations = map;
+    }
 
     @Override
     public Collection<String> keys() {

@@ -5,13 +5,16 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PluginTranslator extends AbstractTranslator {
 
-    public static final String DEFAULT_CODE = "en";
-
     private String code;
+
+    public PluginTranslator() {
+        super(new HashMap<>());
+    }
 
     @Override
     public String code() {
@@ -22,17 +25,17 @@ public class PluginTranslator extends AbstractTranslator {
         translations.clear();
     }
 
-    public void loadTranslations(Plugin plugin) {
-        this.code = plugin.getConfig().getString("lang", DEFAULT_CODE).toLowerCase();
+    public void loadTranslations(Plugin plugin, String code, String fallback) {
+        if (fallback != null) {
+            loadTranslations(plugin, fallback);
+        }
 
-        loadTranslations(plugin, DEFAULT_CODE);
-
-        if (!DEFAULT_CODE.equals(code)) {
+        if (!code.equals(fallback)) {
             loadTranslations(plugin, code);
         }
     }
 
-    private void loadTranslations(Plugin plugin, String code) {
+    public void loadTranslations(Plugin plugin, String code) {
         String path = pathToFile(code);
         plugin.getLogger().info("Loading message translations (" + path + ")...");
         Configuration config = Plugins.loadConfiguration(plugin, path);
@@ -44,6 +47,8 @@ public class PluginTranslator extends AbstractTranslator {
                 translations.put(entry.getKey(), (String) value);
             }
         }
+
+        this.code = code;
     }
 
     private String pathToFile(String code) {
