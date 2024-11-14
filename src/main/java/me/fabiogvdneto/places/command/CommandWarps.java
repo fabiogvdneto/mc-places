@@ -2,7 +2,7 @@ package me.fabiogvdneto.places.command;
 
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Place;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

@@ -2,8 +2,8 @@ package me.fabiogvdneto.places.command;
 
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
-import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.CommandSenderException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Place;
 import me.fabiogvdneto.places.model.exception.WarpNotFoundException;
 import org.bukkit.command.Command;
@@ -26,7 +26,7 @@ public class CommandSpawn extends CommandHandler<PlacesPlugin> {
             plugin.teleport((Player) sender, spawn);
         } catch (PermissionRequiredException e) {
             plugin.getMessages().permissionRequired(sender);
-        } catch (IllegalSenderException e) {
+        } catch (CommandSenderException e) {
             plugin.getMessages().playersOnly(sender);
         } catch (WarpNotFoundException e) {
             plugin.getMessages().spawnNotFound(sender);

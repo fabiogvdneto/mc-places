@@ -1,4 +1,4 @@
-package me.fabiogvdneto.places.common.command.exception;
+package me.fabiogvdneto.places.common.exception;
 
 public class PermissionRequiredException extends CommandExecutionException {
 

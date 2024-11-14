@@ -1,8 +1,8 @@
 package me.fabiogvdneto.places.common.command;
 
-import me.fabiogvdneto.places.common.command.exception.IllegalArgumentException;
-import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.CommandArgumentException;
+import me.fabiogvdneto.places.common.exception.CommandSenderException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -67,14 +67,14 @@ public abstract class CommandHandler<P extends JavaPlugin> implements CommandExe
 
     /* ---- Validations ---- */
 
-    public final void requirePlayer(CommandSender sender) throws IllegalSenderException {
+    public final void requirePlayer(CommandSender sender) throws CommandSenderException {
         if (!(sender instanceof Player))
-            throw new IllegalSenderException();
+            throw new CommandSenderException();
     }
 
-    public final void requireArguments(String[] args, int minimumLength) throws IllegalArgumentException {
+    public final void requireArguments(String[] args, int minimumLength) throws CommandArgumentException {
         if (args.length < minimumLength)
-            throw new IllegalArgumentException(-1);
+            throw new CommandArgumentException(-1);
     }
 
     public final void requirePermission(CommandSender sender, String permission) throws PermissionRequiredException {
@@ -82,27 +82,27 @@ public abstract class CommandHandler<P extends JavaPlugin> implements CommandExe
             throw new PermissionRequiredException(permission);
     }
 
-    public final int parseInt(String[] args, int index) throws IllegalArgumentException {
+    public final int parseInt(String[] args, int index) throws CommandArgumentException {
         try {
             return Integer.parseInt(args[index]);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(index);
+            throw new CommandArgumentException(index);
         }
     }
 
-    public final long parseLong(String[] args, int index) throws IllegalArgumentException {
+    public final long parseLong(String[] args, int index) throws CommandArgumentException {
         try {
             return Long.parseLong(args[index]);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(index);
+            throw new CommandArgumentException(index);
         }
     }
 
-    public final Player parsePlayer(String[] args, int index) throws IllegalArgumentException {
+    public final Player parsePlayer(String[] args, int index) throws CommandArgumentException {
         Player player = Bukkit.getPlayer(args[index]);
 
         if (player == null)
-            throw new IllegalArgumentException(index);
+            throw new CommandArgumentException(index);
 
         return player;
     }

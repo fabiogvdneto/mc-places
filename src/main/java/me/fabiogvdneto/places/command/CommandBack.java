@@ -2,8 +2,8 @@ package me.fabiogvdneto.places.command;
 
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
-import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.CommandSenderException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,7 +23,7 @@ public class CommandBack extends CommandHandler<PlacesPlugin> {
             plugin.teleportBack((Player) sender);
         } catch (PermissionRequiredException e) {
             plugin.getMessages().permissionRequired(sender);
-        } catch (IllegalSenderException e) {
+        } catch (CommandSenderException e) {
             plugin.getMessages().playersOnly(sender);
         } catch (IllegalStateException e) {
             plugin.getMessages().cannotTeleportBack(sender);

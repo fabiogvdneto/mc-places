@@ -2,9 +2,9 @@ package me.fabiogvdneto.places.command;
 
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
-import me.fabiogvdneto.places.common.command.exception.IllegalArgumentException;
-import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.CommandArgumentException;
+import me.fabiogvdneto.places.common.exception.CommandSenderException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.exception.HomeAlreadyExistsException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -46,9 +46,9 @@ public class CommandSethome extends CommandHandler<PlacesPlugin> {
             });
         } catch (PermissionRequiredException e) {
             plugin.getMessages().permissionRequired(sender);
-        } catch (IllegalSenderException e) {
+        } catch (CommandSenderException e) {
             plugin.getMessages().playersOnly(sender);
-        } catch (IllegalArgumentException e) {
+        } catch (CommandArgumentException e) {
             if (e.getIndex() == 1) {
                 plugin.getMessages().playerNotFound(sender, args[1]);
             } else {

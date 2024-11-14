@@ -2,8 +2,8 @@ package me.fabiogvdneto.places.command;
 
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
-import me.fabiogvdneto.places.common.command.exception.IllegalArgumentException;
-import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
+import me.fabiogvdneto.places.common.exception.CommandArgumentException;
+import me.fabiogvdneto.places.common.exception.PermissionRequiredException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public class CommandTphere extends CommandHandler<PlacesPlugin> {
             parsePlayer(args, 0).teleport((Player) sender);
         } catch (PermissionRequiredException e) {
             plugin.getMessages().permissionRequired(sender);
-        } catch (IllegalArgumentException e) {
+        } catch (CommandArgumentException e) {
             plugin.getMessages().commandUsage(sender, "tphere");
         }
     }
