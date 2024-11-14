@@ -20,7 +20,7 @@ public class CommandSetwarp extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.setwarp");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
             requireArguments(args, 1);
 
             Player player = (Player) sender;

@@ -20,7 +20,7 @@ public class CommandSethome extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.sethome");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
             requireArguments(args, 1);
 
             Player player = (Player) sender;
@@ -58,6 +58,6 @@ public class CommandSethome extends CommandHandler<PlacesPlugin> {
     }
 
     private boolean hasOthersPermission(Player player) {
-        return plugin.getSettings().hasAdminPermission(player);
+        return plugin.getSettings().getAdminPermission().test(player);
     }
 }

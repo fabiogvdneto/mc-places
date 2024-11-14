@@ -18,10 +18,10 @@ public class CommandWarps extends CommandHandler<PlacesPlugin> {
     @Override
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            requirePermission(sender, "places.command.warps");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
 
             Collection<String> warps = plugin.getWarps().getAll().stream().map(Place::getName)
-                    .filter(name -> plugin.getSettings().hasWarpPermission(sender, name)).toList();
+                    .filter(name -> plugin.getSettings().getWarpPermission(name).test(sender)).toList();
 
             plugin.getMessages().warpList(sender, warps);
         } catch (PermissionRequiredException e) {

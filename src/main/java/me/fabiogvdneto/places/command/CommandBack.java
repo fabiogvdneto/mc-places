@@ -18,7 +18,7 @@ public class CommandBack extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.back");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
 
             plugin.teleportBack((Player) sender);
         } catch (PermissionRequiredException e) {

@@ -25,12 +25,12 @@ public class CommandWarp extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.warp");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
             requireArguments(args, 1);
 
             Place warp = plugin.getWarps().get(args[0]);
 
-            if (!plugin.getSettings().hasWarpPermission(sender, warp.getName())) {
+            if (!plugin.getSettings().getWarpPermission(warp.getName()).test(sender)) {
                 plugin.getMessages().permissionRequired(sender);
                 return;
             }
@@ -52,8 +52,8 @@ public class CommandWarp extends CommandHandler<PlacesPlugin> {
         Collection<Place> warps = plugin.getWarps().getAll();
         Stream<String> stream = warps.stream().filter(warp -> !warp.isClosed()).map(Place::getName);
 
-        return plugin.getSettings().hasAdminPermission(sender)
+        return plugin.getSettings().getAdminPermission().test(sender)
                 ? stream.toList()
-                : stream.filter(place -> plugin.getSettings().hasWarpPermission(sender, place)).toList();
+                : stream.filter(place -> plugin.getSettings().getWarpPermission(place).test(sender)).toList();
     }
 }

@@ -20,7 +20,7 @@ public class CommandSpawn extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.spawn");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
 
             Place spawn = plugin.getWarps().get("spawn");
             plugin.teleport((Player) sender, spawn);

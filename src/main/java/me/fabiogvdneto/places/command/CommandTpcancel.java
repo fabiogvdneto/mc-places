@@ -19,7 +19,7 @@ public class CommandTpcancel extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.tpcancel");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
 
             Player player = (Player) sender;
             Teleportation ongoing = plugin.getTeleporter().ongoing(player);

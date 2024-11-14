@@ -18,7 +18,7 @@ public class CommandTphere extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.tphere");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
             requireArguments(args, 1);
 
             parsePlayer(args, 0).teleport((Player) sender);

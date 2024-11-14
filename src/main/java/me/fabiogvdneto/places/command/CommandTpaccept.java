@@ -28,7 +28,7 @@ public class CommandTpaccept extends CommandHandler<PlacesPlugin> {
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
-            requirePermission(sender, "places.command.tpaccept");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
 
             Player player = (Player) sender;
             Player target = (args.length == 0) ? player : parsePlayer(args, 0);

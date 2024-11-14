@@ -17,7 +17,7 @@ public class CommandDelwarp extends CommandHandler<PlacesPlugin> {
     @Override
     public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            requirePermission(sender, "places.command.delwarp");
+            plugin.getSettings().getCommandPermission(cmd).require(sender);
             requireArguments(args, 1);
 
             plugin.getWarps().delete(args[0]);

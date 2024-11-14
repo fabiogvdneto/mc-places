@@ -2,6 +2,8 @@ package me.fabiogvdneto.places.module;
 
 import me.fabiogvdneto.places.PlacesModule;
 import me.fabiogvdneto.places.PlacesPlugin;
+import me.fabiogvdneto.places.common.PermissionWrapper;
+import org.bukkit.command.Command;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.permissions.Permissible;
 
@@ -99,15 +101,19 @@ public final class SettingsModule implements PlacesModule {
 
     /* ---- Permissions ---- */
 
-    public boolean hasAdminPermission(Permissible perm) {
-        return perm.hasPermission("places.admin");
+    public PermissionWrapper getAdminPermission() {
+        return new PermissionWrapper("places.admin");
     }
 
-    public boolean hasCommandPermission(Permissible perm, String cmd) {
-        return perm.hasPermission("places.command." + cmd);
+    public PermissionWrapper getCommandPermission(Command cmd) {
+        return new PermissionWrapper("places.command." + cmd.getName());
     }
 
-    public boolean hasWarpPermission(Permissible perm, String warpName) {
-        return perm.hasPermission("places.warps.warp." + warpName);
+    public PermissionWrapper getCommandPermission(String cmd) {
+        return new PermissionWrapper("places.command." + cmd);
+    }
+
+    public PermissionWrapper getWarpPermission(String warpName) {
+        return new PermissionWrapper("places.warps.warp." + warpName);
     }
 }
