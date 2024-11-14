@@ -4,6 +4,7 @@ import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.command.CommandHandler;
 import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Place;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ public class CommandWarps extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePermission(sender, "places.command.warps");
 

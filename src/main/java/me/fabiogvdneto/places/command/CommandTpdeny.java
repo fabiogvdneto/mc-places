@@ -9,6 +9,7 @@ import me.fabiogvdneto.places.model.TeleportationRequest;
 import me.fabiogvdneto.places.model.exception.TeleportationRequestClosedException;
 import me.fabiogvdneto.places.model.exception.TeleportationRequestNotFoundException;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -24,7 +25,7 @@ public class CommandTpdeny extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
             requirePermission(sender, "places.command.tpdeny");
@@ -52,7 +53,7 @@ public class CommandTpdeny extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) return Collections.emptyList();
 
         Collection<TeleportationRequest> requests = plugin.getUsers().getIfCached(player.getUniqueId()).getTeleportationRequests();

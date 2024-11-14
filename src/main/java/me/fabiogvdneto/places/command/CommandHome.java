@@ -7,6 +7,7 @@ import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
 import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Home;
 import me.fabiogvdneto.places.model.exception.HomeNotFoundException;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,7 @@ public class CommandHome extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
             requirePermission(sender, "places.command.home");
@@ -55,7 +56,7 @@ public class CommandHome extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player player) || args.length > 2) return Collections.emptyList();
 
         // Returning null will list all the online players.

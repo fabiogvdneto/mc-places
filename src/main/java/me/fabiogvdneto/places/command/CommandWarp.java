@@ -7,6 +7,7 @@ import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
 import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Place;
 import me.fabiogvdneto.places.model.exception.WarpNotFoundException;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,7 @@ public class CommandWarp extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
             requirePermission(sender, "places.command.warp");
@@ -47,7 +48,7 @@ public class CommandWarp extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
         Collection<Place> warps = plugin.getWarps().getAll();
         Stream<String> stream = warps.stream().filter(warp -> !warp.isClosed()).map(Place::getName);
 

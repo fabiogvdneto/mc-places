@@ -7,6 +7,7 @@ import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
 import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.TeleportationRequest;
 import me.fabiogvdneto.places.model.exception.TeleportationRequestAlreadyExistsException;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,7 @@ public class CommandTpa extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
             requirePermission(sender, "places.command.tpa");
@@ -66,7 +67,7 @@ public class CommandTpa extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, String label, String[] args) {
         // Returning null will list all the online players.
         return (args.length == 1) ? null : Collections.emptyList();
     }

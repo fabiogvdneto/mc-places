@@ -7,6 +7,7 @@ import me.fabiogvdneto.places.common.command.exception.IllegalSenderException;
 import me.fabiogvdneto.places.common.command.exception.PermissionRequiredException;
 import me.fabiogvdneto.places.model.Home;
 import me.fabiogvdneto.places.model.User;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,7 +21,7 @@ public class CommandHomes extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public void onCommand(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             requirePlayer(sender);
             requirePermission(sender, "places.command.homes");

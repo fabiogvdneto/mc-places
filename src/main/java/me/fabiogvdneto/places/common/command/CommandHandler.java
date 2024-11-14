@@ -41,27 +41,27 @@ public abstract class CommandHandler<P extends JavaPlugin> implements CommandExe
 
     @Override
     public final boolean onCommand(@NotNull CommandSender sender,
-                                   @NotNull Command cmd,
+                                   @NotNull Command command,
                                    @NotNull String label,
                                    @NotNull String[] args) {
-        onCommand(sender, label, args);
+        execute(sender, command, label, args);
         return true;
     }
 
-    @Override
-    public final @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
-                                                      @NotNull Command command,
-                                                      @NotNull String label,
-                                                      @NotNull String[] args) {
-        return onTabComplete(sender, label, args);
+    @Override @Nullable
+    public final List<String> onTabComplete(@NotNull CommandSender sender,
+                                            @NotNull Command command,
+                                            @NotNull String label,
+                                            @NotNull String[] args) {
+        return complete(sender, command, label, args);
     }
 
     /* ---- Operations ---- */
 
-    public abstract void onCommand(CommandSender sender, String label, String[] args);
+    public abstract void execute(CommandSender sender, Command cmd, String label, String[] args);
 
-    public List<String> onTabComplete(CommandSender sender, String label, String[] args) {
-        // Does nothing by default.
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
+        // Default behaviour: completes with nothing.
         return Collections.emptyList();
     }
 
