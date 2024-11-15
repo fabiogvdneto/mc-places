@@ -55,7 +55,7 @@ public class CommandTpaccept extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> complete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) return Collections.emptyList();
 
         Collection<TeleportationRequest> requests = plugin.getUsers().getIfCached(player.getUniqueId()).getTeleportationRequests();

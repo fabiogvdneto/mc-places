@@ -56,7 +56,7 @@ public class CommandHome extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> complete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player) || args.length > 2) return Collections.emptyList();
 
         // Returning null will list all the online players.

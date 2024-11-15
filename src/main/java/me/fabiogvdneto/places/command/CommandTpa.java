@@ -67,7 +67,7 @@ public class CommandTpa extends CommandHandler<PlacesPlugin> {
     }
 
     @Override
-    public List<String> complete(CommandSender sender, String label, String[] args) {
+    public List<String> complete(CommandSender sender, Command cmd, String label, String[] args) {
         // Returning null will list all the online players.
         return (args.length == 1) ? null : Collections.emptyList();
     }
