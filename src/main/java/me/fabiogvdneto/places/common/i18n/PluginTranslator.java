@@ -25,33 +25,21 @@ public class PluginTranslator extends AbstractTranslator {
         translations.clear();
     }
 
-    public void loadTranslations(Plugin plugin, String code, String fallback) {
-        if (fallback != null) {
-            loadTranslations(plugin, fallback);
-        }
-
-        if (!code.equals(fallback)) {
-            loadTranslations(plugin, code);
-        }
-    }
-
     public void loadTranslations(Plugin plugin, String code) {
-        String path = pathToFile(code);
+        String path = path(code);
         plugin.getLogger().info("Loading message translations (" + path + ")...");
         Configuration config = Plugins.loadConfiguration(plugin, path);
 
         for (Map.Entry<String, Object> entry : config.getValues(true).entrySet()) {
-            Object value = entry.getValue();
-
-            if (value.getClass() == String.class) {
-                translations.put(entry.getKey(), (String) value);
+            if (entry.getValue().getClass() == String.class) {
+                translations.put(entry.getKey(), (String) entry.getValue());
             }
         }
 
         this.code = code;
     }
 
-    private String pathToFile(String code) {
+    private String path(String code) {
         return "messages" + File.separatorChar + code + ".yml";
     }
 }

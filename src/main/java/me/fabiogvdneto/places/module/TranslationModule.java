@@ -23,7 +23,8 @@ public final class TranslationModule implements PlacesModule {
     }
 
     public void enable() {
-        translator.loadTranslations(plugin, plugin.getSettings().getLanguageCode(), "en");
+        translator.loadTranslations(plugin, "en");
+        translator.loadTranslations(plugin, plugin.getSettings().getLanguage());
     }
 
     public void disable() {

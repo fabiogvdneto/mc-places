@@ -40,7 +40,7 @@ public final class SettingsModule implements PlacesModule {
         return plugin.getConfig();
     }
 
-    public String getLanguageCode() {
+    public String getLanguage() {
         return config().getString("lang");
     }
 
