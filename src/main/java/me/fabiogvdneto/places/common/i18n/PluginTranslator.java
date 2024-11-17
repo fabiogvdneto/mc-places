@@ -14,6 +14,7 @@ public class PluginTranslator extends AbstractTranslator {
 
     public PluginTranslator() {
         super(new HashMap<>());
+        this.code = "null";
     }
 
     @Override
@@ -26,6 +27,8 @@ public class PluginTranslator extends AbstractTranslator {
     }
 
     public void loadTranslations(Plugin plugin, String code) {
+        if (this.code.equals(code)) return;
+
         String path = path(code);
         plugin.getLogger().info("Loading message translations (" + path + ")...");
         Configuration config = Plugins.loadConfiguration(plugin, path);
