@@ -15,6 +15,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.function.Supplier;
+
 public final class PlacesPlugin extends JavaPlugin {
 
     public static PlacesPlugin INSTANCE;
@@ -95,54 +97,44 @@ public final class PlacesPlugin extends JavaPlugin {
 
     /* ---- Teleportation ---- */
 
-    private void warmup(Teleportation instance, int delay) {
-        if (!settings.isMovementAllowedWhileTeleporting()) {
-            instance.onMovement(task -> {
-                task.cancel();
-                messages.movementNotAllowedWhileTeleporting(task.getRecipient());
-            });
-        }
+    private void teleport(Player player, Supplier<Location> destSupplier, int delay) {
+        Teleportation instance = teleportations.create(player, destSupplier);
 
-        if (!settings.isDamageAllowedWhileTeleporting()) {
-            instance.onDamage(task -> {
-                task.cancel();
-                messages.damageNotAllowedWhileTeleporting(task.getRecipient());
-            });
-        }
-
-        instance.onCountdown(task -> {
-            if (task.getCounter() == 0) {
-                messages.teleportedSuccessfully(task.getRecipient());
-            } else {
-                messages.teleportationCountdown(task.getRecipient(), task.getCounter());
+        if (delay > 0) {
+            if (!settings.isMovementAllowedWhileTeleporting()) {
+                instance.onMovement(task -> {
+                    task.cancel();
+                    messages.movementNotAllowedWhileTeleporting(task.getRecipient());
+                });
             }
-        }).withDelay(delay).begin();
+
+            if (!settings.isDamageAllowedWhileTeleporting()) {
+                instance.onDamage(task -> {
+                    task.cancel();
+                    messages.damageNotAllowedWhileTeleporting(task.getRecipient());
+                });
+            }
+
+            instance.onCountdown(task -> {
+                if (task.getCounter() == 0) {
+                    messages.teleportedSuccessfully(task.getRecipient());
+                } else {
+                    messages.teleportationCountdown(task.getRecipient(), Integer.toString(task.getCounter()));
+                }
+            });
+        } else {
+            instance.onCountdown(task -> messages.teleportedSuccessfully(task.getRecipient()));
+        }
+
+        instance.withDelay(delay).begin();
     }
 
     public void teleport(Player player, Place dest) {
-        messages.teleportationStarted(player, dest.getName());
-
-        int delay = settings.getTeleporterDelay(player);
-
-        if (delay <= 0) {
-            player.teleport(dest.getLocation());
-            return;
-        }
-
-        warmup(teleportations.create(player, dest::getLocation), delay);
+        teleport(player, dest::getLocation, settings.getTeleporterDelay(player));
     }
 
     public void teleport(Player player, Player dest) {
-        messages.teleportationStarted(player, dest.getName());
-
-        int delay = settings.getTeleporterDelayForTpa(player);
-
-        if (delay <= 0) {
-            player.teleport(dest.getLocation());
-            return;
-        }
-
-        Teleportation instance = teleportations.create(player, () -> {
+        Supplier<Location> destSupplier = () -> {
             if (player.isOnline()) {
                 if (dest.isOnline()) {
                     return dest.getLocation();
@@ -150,9 +142,9 @@ public final class PlacesPlugin extends JavaPlugin {
                 messages.teleportationCancelled(player);
             }
             return null;
-        });
+        };
 
-        warmup(instance, delay);
+        teleport(player, destSupplier, settings.getTeleporterDelayForTpa(player));
     }
 
     public void teleportBack(Player player) throws IllegalStateException {
@@ -160,13 +152,6 @@ public final class PlacesPlugin extends JavaPlugin {
 
         if (prev == null) throw new IllegalStateException("cannot go back");
 
-        int delay = settings.getTeleporterDelay(player);
-
-        if (delay <= 0) {
-            player.teleport(prev);
-            return;
-        }
-
-        warmup(teleportations.create(player, prev), delay);
+        teleport(player, () -> prev, settings.getTeleporterDelay(player));
     }
 }

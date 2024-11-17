@@ -89,12 +89,8 @@ public final class TranslationModule implements PlacesModule {
         message("teleporter.cancelled", target);
     }
 
-    public void teleportationStarted(Audience target, String destName) {
-        message("teleporter.started", target, Placeholder.unparsed("destination", destName));
-    }
-
-    public void teleportationCountdown(Audience target, int remaining) {
-        message("teleporter.countdown", target, Placeholder.unparsed("seconds", Integer.toString(remaining)));
+    public void teleportationCountdown(Audience target, String remaining) {
+        message("teleporter.countdown", target, Placeholder.unparsed("seconds", remaining));
     }
 
     public void teleportedSuccessfully(Audience target) {

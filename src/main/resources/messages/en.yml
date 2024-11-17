@@ -13,7 +13,6 @@ teleporter:
   damage-not-allowed: "<red>Fighting is not allowed during teleportation."
   cancelled: "<red>Teleportation cancelled."
   success: "<green>Teleportation completed."
-  started: "<green>Teleporting you to <white><destination><green>."
   countdown: "<yellow>Teleporting in <white><seconds><yellow>..."
   player-not-found: "<red>You are not teleporting."
   cannot-go-back: "<red>Unable to go back."
