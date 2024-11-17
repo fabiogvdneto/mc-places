@@ -1,5 +1,5 @@
 name: Places
-version: '${project.version}'
+version: '0.1'
 main: me.fabiogvdneto.places.PlacesPlugin
 api-version: '1.21'
 commands:
