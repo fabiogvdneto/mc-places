@@ -17,15 +17,21 @@ import java.util.*;
 class StandardUser implements User {
 
     private final UUID uid;
-    private final Map<String, Home> homes = new HashMap<>();
-    private final Map<UUID, TeleportationRequest> tprequests = new HashMap<>();
+    private final Map<String, Home> homes;
+    private final Map<UUID, TeleportationRequest> tprequests;
 
     StandardUser(UserData userData) {
-        this.uid = userData.uid();
+        this(userData.uid());
 
         for (HomeData homeData : userData.homes()) {
             homes.put(homeData.name().toLowerCase(), new StandardHome(homeData));
         }
+    }
+
+    StandardUser(UUID uid) {
+        this.uid = uid;
+        this.homes = new HashMap<>();
+        this.tprequests = new HashMap<>();
     }
 
     @Override

@@ -16,9 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -40,28 +38,15 @@ public class UserModule implements UserManager, PlacesModule {
         return cache.values().stream().map(future -> future.getNow(null)).filter(Objects::nonNull).toList();
     }
 
-    private User getOrNull(CompletableFuture<User> future) {
-        try {
-            return future.getNow(null);
-        } catch (CompletionException | CancellationException e) {
-            return null;
-        }
-    }
-
     @Override
     public User getIfCached(UUID userId) {
         CompletableFuture<User> future = cache.get(userId);
-
-        return (future == null) ? null : getOrNull(future);
+        return (future == null) ? null : future.getNow(null);
     }
 
     @Override
     public void fetch(UUID userId, Consumer<User> callback) {
-        load(userId).whenComplete((user, x) -> {
-            if (user != null) {
-                callback.accept(user);
-            }
-        });
+        load(userId).thenAccept(callback);
     }
 
     private CompletableFuture<User> load(UUID userId) {
@@ -71,14 +56,19 @@ public class UserModule implements UserManager, PlacesModule {
             Plugins.async(plugin, () -> {
                 try {
                     UserData data = repository.fetchOne(userId);
-
-                    future.complete(new StandardUser(data));
+                    StandardUser user = (data == null)
+                            ? new StandardUser(userId)
+                            : new StandardUser(data);
+                    future.complete(user);
                 } catch (Exception e) {
                     future.completeExceptionally(e);
                 }
             });
 
-            return future;
+            return future.exceptionally(e -> {
+                plugin.getLogger().warning("An error occurred while trying to load user data.");
+                return null;
+            });
         });
     }
 
@@ -88,7 +78,7 @@ public class UserModule implements UserManager, PlacesModule {
         createRepository();
         registerEvents();
         loadOnlinePlayers();
-        autosave();
+        runAutosave();
     }
 
     private void registerEvents() {
@@ -116,12 +106,13 @@ public class UserModule implements UserManager, PlacesModule {
     private void loadOnlinePlayers() {
         Player[] snapshot = Bukkit.getOnlinePlayers().toArray(Player[]::new);
 
+        plugin.getLogger().info("Loading user data...");
         for (Player player : snapshot) {
             load(player.getUniqueId());
         }
     }
 
-    private void autosave() {
+    private void runAutosave() {
         int ticks = plugin.getSettings().getUserAutosaveInterval() * 60 * 20;
         int purgeDays = plugin.getSettings().getUserPurgeDays();
 
@@ -154,7 +145,6 @@ public class UserModule implements UserManager, PlacesModule {
 
             // Remove (purge) offline players from the cache.
             refreshCache();
-            plugin.getLogger().info("Finished saving user data.");
         }, ticks, ticks);
     }
 
@@ -172,6 +162,8 @@ public class UserModule implements UserManager, PlacesModule {
 
         PlayerJoinEvent.getHandlerList().unregister(playerListener);
         autosaveTask.cancel();
+
+        plugin.getLogger().info("Saving user data...");
         memento().forEach(data -> {
             try {
                 repository.storeOne(data);
@@ -189,7 +181,7 @@ public class UserModule implements UserManager, PlacesModule {
 
     private List<UserData> memento() {
         return cache.values().stream()
-                .map(this::getOrNull)
+                .map(future -> future.getNow(null))
                 .filter(Objects::nonNull)
                 .map(user -> ((StandardUser) user).memento())
                 .toList();

@@ -5,6 +5,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class PluginTranslator extends AbstractTranslator {
         translations.clear();
     }
 
-    public void loadTranslations(Plugin plugin, String code) {
+    public void loadTranslations(Plugin plugin, String code) throws IOException {
         if (this.code.equals(code)) return;
 
         String path = path(code);

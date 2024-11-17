@@ -41,7 +41,7 @@ public final class Plugins {
         return (resource == null) ? null : YamlConfiguration.loadConfiguration(new InputStreamReader(resource));
     }
 
-    public static YamlConfiguration loadConfiguration(Plugin plugin, String path) {
+    public static YamlConfiguration loadConfiguration(Plugin plugin, String path) throws IOException {
         File file = new File(plugin.getDataFolder(), path);
 
         YamlConfiguration defaults = loadResource(plugin, path);
@@ -49,13 +49,10 @@ public final class Plugins {
                 ? YamlConfiguration.loadConfiguration(file) : new YamlConfiguration();
 
         if (defaults != null) {
-            try {
-                config.setDefaults(defaults);
-                config.options().copyDefaults(true);
-                config.save(file);
-            } catch (IOException e) {
-                plugin.getLogger().warning("Could not save configuration file.");
-            }
+            plugin.saveResource(path, false);
+            config.setDefaults(defaults);
+            config.options().copyDefaults(true);
+            config.save(file);
         }
 
         return config;

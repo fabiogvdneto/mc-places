@@ -33,7 +33,6 @@ public class CommandHomes extends CommandHandler<PlacesPlugin> {
                     plugin.getMessages().homeListEmpty(sender);
                 } else {
                     List<String> homes = user.getHomes().stream().map(Home::getName).toList();
-
                     plugin.getMessages().homeList(sender, homes);
                 }
             };

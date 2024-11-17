@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 
+import java.io.IOException;
 import java.util.Collection;
 
 public final class TranslationModule implements PlacesModule {
@@ -23,8 +24,13 @@ public final class TranslationModule implements PlacesModule {
     }
 
     public void enable() {
-        translator.loadTranslations(plugin, "en");
-        translator.loadTranslations(plugin, plugin.getSettings().getLanguage());
+        try {
+            translator.loadTranslations(plugin, "en");
+            translator.loadTranslations(plugin, plugin.getSettings().getLanguage());
+        } catch (IOException e) {
+            plugin.getLogger().warning("An error occurred while trying to load translations.");
+            plugin.getLogger().warning(e.getMessage());
+        }
     }
 
     public void disable() {

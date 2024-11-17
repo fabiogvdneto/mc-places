@@ -71,6 +71,7 @@ public class WarpModule implements WarpManager, PlacesModule {
         this.repository = new JavaWarpSingleRepository(plugin.getDataPath().resolve("data").resolve("warps.ser"));
 
         try {
+            plugin.getLogger().info("Loading warps...");
             repository.mount();
             repository.fetch().forEach(data -> cache.put(data.name().toLowerCase(), new StandardWarp(data)));
         } catch (Exception e) {
@@ -88,13 +89,13 @@ public class WarpModule implements WarpManager, PlacesModule {
 
             Plugins.async(plugin, () -> {
                 plugin.getLogger().info("Saving warps...");
+
                 try {
                     repository.store(data);
                 } catch (Exception e) {
                     plugin.getLogger().warning("An error occurred while trying to save data.");
                     plugin.getLogger().warning(e.getMessage());
                 }
-                plugin.getLogger().info("Finished saving warps.");
             });
         }, ticks, ticks);
     }
@@ -106,6 +107,7 @@ public class WarpModule implements WarpManager, PlacesModule {
         autosaveTask.cancel();
 
         try {
+            plugin.getLogger().info("Saving warps...");
             repository.store(memento());
         } catch (Exception e) {
             plugin.getLogger().warning("An error occurred while trying to save warps.");
