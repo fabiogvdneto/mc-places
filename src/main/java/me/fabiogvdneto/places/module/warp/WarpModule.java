@@ -1,6 +1,5 @@
 package me.fabiogvdneto.places.module.warp;
 
-import com.google.common.base.Preconditions;
 import me.fabiogvdneto.places.PlacesModule;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.Plugins;
@@ -10,12 +9,10 @@ import me.fabiogvdneto.places.model.exception.WarpAlreadyExistsException;
 import me.fabiogvdneto.places.model.exception.WarpNotFoundException;
 import me.fabiogvdneto.places.repository.WarpRepository;
 import me.fabiogvdneto.places.repository.data.WarpData;
-import me.fabiogvdneto.places.repository.java.JavaWarpRepository;
+import me.fabiogvdneto.places.repository.java.JavaWarpSingleRepository;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,21 +62,20 @@ public class WarpModule implements WarpManager, PlacesModule {
 
     @Override
     public void enable() {
-        Preconditions.checkState(repository == null, "warp module is already enabled");
-
+        disable();
         createRepository();
         autosave();
     }
 
     private void createRepository() {
-        File file = new File(plugin.getDataFolder(), "warps.bin");
-
-        this.repository = new JavaWarpRepository(file);
+        this.repository = new JavaWarpSingleRepository(plugin.getDataPath().resolve("data").resolve("warps.ser"));
 
         try {
+            repository.mount();
             repository.fetch().forEach(data -> cache.put(data.name().toLowerCase(), new StandardWarp(data)));
-        } catch (IOException e) {
-            plugin.getLogger().warning("[Warps] An error occurred while trying to load data.");
+        } catch (Exception e) {
+            plugin.getLogger().warning("An error occurred while trying to load warp data.");
+            plugin.getLogger().warning(e.getMessage());
         }
     }
 
@@ -88,37 +84,39 @@ public class WarpModule implements WarpManager, PlacesModule {
 
         // 36.000 ticks = 30 minutes
         this.autosaveTask = Plugins.sync(plugin, () -> {
-            Collection<WarpData> data = data();
+            Collection<WarpData> data = memento();
 
             Plugins.async(plugin, () -> {
-                plugin.getLogger().info("[Warps] Saving data...");
+                plugin.getLogger().info("Saving warps...");
                 try {
                     repository.store(data);
-                } catch (IOException e) {
-                    plugin.getLogger().warning("[Warps] An error occurred while trying to save data.");
+                } catch (Exception e) {
+                    plugin.getLogger().warning("An error occurred while trying to save data.");
+                    plugin.getLogger().warning(e.getMessage());
                 }
-                plugin.getLogger().info("[Warps] Save completed.");
+                plugin.getLogger().info("Finished saving warps.");
             });
         }, ticks, ticks);
     }
 
     @Override
     public void disable() {
-        Preconditions.checkState(repository != null, "warp module is already disabled");
+        if (autosaveTask == null) return;
 
         autosaveTask.cancel();
 
         try {
-            repository.store(data());
-        } catch (IOException e) {
-            plugin.getLogger().warning("[Warps] An error occurred while trying to save data.");
+            repository.store(memento());
+        } catch (Exception e) {
+            plugin.getLogger().warning("An error occurred while trying to save warps.");
+            plugin.getLogger().warning(e.getMessage());
         }
 
         this.autosaveTask = null;
         this.repository = null;
     }
 
-    private Collection<WarpData> data() {
+    private Collection<WarpData> memento() {
         return cache.values().stream().map(warp -> ((StandardWarp) warp).data()).toList();
     }
 

@@ -1,14 +1,15 @@
 package me.fabiogvdneto.places.common.repository;
 
-import java.io.IOException;
 import java.util.Collection;
 
-public interface KeyedRepository<K, D> extends Repository {
+public interface KeyedRepository<K, V> extends Repository {
 
-    Collection<K> keys();
+    void storeOne(V data) throws Exception;
 
-    SingleRepository<D> select(K key);
+    V fetchOne(K key) throws Exception;
 
-    void purge(int days) throws IOException;
+    void deleteOne(K key) throws Exception;
+
+    Collection<K> fetchKeys() throws Exception;
 
 }

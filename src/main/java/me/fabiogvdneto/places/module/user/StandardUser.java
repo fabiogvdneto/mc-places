@@ -89,8 +89,8 @@ class StandardUser implements User {
         return request;
     }
 
-    UserData data() {
-        List<HomeData> homeData = homes.values().stream().map(home -> ((StandardHome) home).data()).toList();
+    UserData memento() {
+        List<HomeData> homeData = homes.values().stream().map(home -> ((StandardHome) home).memento()).toList();
         return new UserData(uid, homeData);
     }
 }

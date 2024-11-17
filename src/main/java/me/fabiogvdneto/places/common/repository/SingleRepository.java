@@ -1,11 +1,9 @@
 package me.fabiogvdneto.places.common.repository;
 
-import java.io.IOException;
+public interface SingleRepository<V> extends Repository {
 
-public interface SingleRepository<D> extends Repository {
+    void store(V data) throws Exception;
 
-    D fetch() throws IOException;
-
-    void store(D data) throws IOException;
+    V fetch() throws Exception;
 
 }

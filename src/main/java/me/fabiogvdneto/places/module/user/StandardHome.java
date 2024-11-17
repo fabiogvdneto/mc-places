@@ -38,7 +38,7 @@ class StandardHome implements Home {
         this.closed = closed;
     }
 
-    HomeData data() {
+    HomeData memento() {
         return new HomeData(name, new LocationData(location), closed);
     }
 }

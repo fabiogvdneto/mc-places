@@ -1,4 +1,4 @@
-name: Places
+name: CursedPlaces
 version: '0.1'
 main: me.fabiogvdneto.places.PlacesPlugin
 api-version: '1.21'

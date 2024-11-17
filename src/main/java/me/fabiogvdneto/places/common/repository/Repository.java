@@ -2,5 +2,8 @@ package me.fabiogvdneto.places.common.repository;
 
 public interface Repository {
 
-    void delete();
+    void mount() throws Exception;
+
+    void delete() throws Exception;
+
 }
