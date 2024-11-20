@@ -31,7 +31,6 @@ public class PluginTranslator extends AbstractTranslator {
         if (this.code.equals(code)) return;
 
         String path = path(code);
-        plugin.getLogger().info("Loading message translations (" + path + ")...");
         Configuration config = Plugins.loadConfiguration(plugin, path);
 
         for (Map.Entry<String, Object> entry : config.getValues(true).entrySet()) {
@@ -40,6 +39,7 @@ public class PluginTranslator extends AbstractTranslator {
             }
         }
 
+        plugin.getLogger().info("Loaded message translations (" + path + ").");
         this.code = code;
     }
 
