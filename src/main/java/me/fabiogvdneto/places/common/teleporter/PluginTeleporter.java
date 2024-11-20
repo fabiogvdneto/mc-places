@@ -129,8 +129,8 @@ public class PluginTeleporter implements Teleporter {
 
         @Override
         public void cancel() throws IllegalStateException {
-            if (delay <= 0 || isCancelled())
-                throw new IllegalStateException("the teleportation can't be cancelled");
+            if (delay <= 0)
+                throw new IllegalStateException("teleportation can't be cancelled because it has no delay");
 
             super.cancel();
             unregister();
@@ -142,23 +142,23 @@ public class PluginTeleporter implements Teleporter {
 
         @Override
         public void run() {
-            updateObservers();
-
-            if (counter-- == 0) {
+            if (updateObservers() && counter-- == 0) {
                 cancel();
                 dispatch();
             }
         }
 
-        private void updateObservers() {
+        private boolean updateObservers() {
             boolean scheduled = delay > 0;
 
             for (Consumer<Teleportation> callback : observers) {
                 callback.accept(this);
 
                 // Ensure the task was scheduled before checking if it was cancelled.
-                if (scheduled && isCancelled()) return;
+                if (scheduled && isCancelled()) return false;
             }
+
+            return true;
         }
 
         private void dispatch() {
