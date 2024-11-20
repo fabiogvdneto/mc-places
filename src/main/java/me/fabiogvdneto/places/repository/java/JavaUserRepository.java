@@ -18,25 +18,33 @@ public class JavaUserRepository extends AbstractJavaKeyedRepository<UUID, UserDa
     }
 
     @Override
-    protected UUID dataToKey(UserData data) {
+    protected UUID getKey(UserData data) {
         return data.uid();
     }
 
     @Override
-    protected UUID filenameToKey(String id) {
+    protected UUID getKeyFromString(String id) {
         return UUID.fromString(id);
     }
 
     @Override
-    public void purge(int days) throws IOException {
+    public int purge(int days) throws IOException {
+        int purgeCount = 0;
         Instant limit = Instant.now().minus(days, ChronoUnit.DAYS);
 
         for (UUID uid : fetchKeys()) {
             long lastSeen = Bukkit.getOfflinePlayer(uid).getLastSeen();
 
             if (lastSeen > 0 && Instant.ofEpochMilli(lastSeen).isBefore(limit)) {
-                deleteOne(uid);
+                try {
+                    deleteOne(uid);
+                    purgeCount++;
+                } catch (IOException e) {
+                    // Nothing we can do to help here.
+                }
             }
         }
+
+        return purgeCount;
     }
 }

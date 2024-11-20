@@ -71,11 +71,11 @@ public class WarpModule implements WarpManager, PlacesModule {
         this.repository = new JavaWarpSingleRepository(plugin.getDataPath().resolve("data").resolve("warps.ser"));
 
         try {
-            plugin.getLogger().info("Loading warps...");
-            repository.mount();
+            repository.create();
             repository.fetch().forEach(data -> cache.put(data.name().toLowerCase(), new StandardWarp(data)));
+            plugin.getLogger().info("Loaded " + cache.size() + " warps.");
         } catch (Exception e) {
-            plugin.getLogger().warning("An error occurred while trying to load warp data.");
+            plugin.getLogger().warning("Could not load warp data.");
             plugin.getLogger().warning(e.getMessage());
         }
     }
@@ -83,39 +83,34 @@ public class WarpModule implements WarpManager, PlacesModule {
     private void autosave() {
         int ticks = plugin.getSettings().getWarpAutosaveInterval() * 60 * 20;
 
-        // 36.000 ticks = 30 minutes
-        this.autosaveTask = Plugins.sync(plugin, () -> {
-            Collection<WarpData> data = memento();
-
-            Plugins.async(plugin, () -> {
-                plugin.getLogger().info("Saving warps...");
-
-                try {
-                    repository.store(data);
-                } catch (Exception e) {
-                    plugin.getLogger().warning("An error occurred while trying to save data.");
-                    plugin.getLogger().warning(e.getMessage());
-                }
-            });
-        }, ticks, ticks);
+        if (ticks > 0) {
+            // 36.000 ticks = 30 minutes
+            this.autosaveTask = Plugins.sync(plugin, () -> {
+                Collection<WarpData> data = memento();
+                Plugins.async(plugin, () -> save(data));
+            }, ticks, ticks);
+        }
     }
 
     @Override
     public void disable() {
-        if (autosaveTask == null) return;
+        if (repository == null)  return;
 
         autosaveTask.cancel();
-
-        try {
-            plugin.getLogger().info("Saving warps...");
-            repository.store(memento());
-        } catch (Exception e) {
-            plugin.getLogger().warning("An error occurred while trying to save warps.");
-            plugin.getLogger().warning(e.getMessage());
-        }
+        save(memento());
 
         this.autosaveTask = null;
         this.repository = null;
+    }
+
+    private void save(Collection<WarpData> data) {
+        try {
+            repository.store(data);
+            plugin.getLogger().info("Saved " + data.size() + " warps.");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not save warps.");
+            plugin.getLogger().warning(e.getMessage());
+        }
     }
 
     private Collection<WarpData> memento() {

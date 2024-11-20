@@ -17,7 +17,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class UserModule implements UserManager, PlacesModule {
@@ -45,20 +44,14 @@ public class UserModule implements UserManager, PlacesModule {
     }
 
     @Override
-    public void fetch(UUID userId, Consumer<User> callback) {
-        load(userId).thenAccept(callback);
-    }
-
-    private CompletableFuture<User> load(UUID userId) {
+    public CompletableFuture<User> fetch(UUID userId) {
         return cache.computeIfAbsent(userId, key -> {
             CompletableFuture<User> future = new CompletableFuture<>();
 
             Plugins.async(plugin, () -> {
                 try {
                     UserData data = repository.fetchOne(userId);
-                    StandardUser user = (data == null)
-                            ? new StandardUser(userId)
-                            : new StandardUser(data);
+                    StandardUser user = (data == null) ? new StandardUser(userId) : new StandardUser(data);
                     future.complete(user);
                 } catch (Exception e) {
                     future.completeExceptionally(e);
@@ -66,7 +59,9 @@ public class UserModule implements UserManager, PlacesModule {
             });
 
             return future.exceptionally(e -> {
-                plugin.getLogger().warning("An error occurred while trying to load user data.");
+                plugin.getLogger().warning("Could not load user data (uuid: " + userId + ").");
+                plugin.getLogger().warning(e.getMessage());
+                cache.remove(userId);
                 return null;
             });
         });
@@ -85,7 +80,7 @@ public class UserModule implements UserManager, PlacesModule {
         this.playerListener = new Listener() {
             @EventHandler
             public void onJoin(PlayerJoinEvent event) {
-                load(event.getPlayer().getUniqueId());
+                fetch(event.getPlayer().getUniqueId());
             }
         };
 
@@ -96,19 +91,61 @@ public class UserModule implements UserManager, PlacesModule {
         this.repository = new JavaUserRepository(plugin.getDataPath().resolve("data").resolve("users"));
 
         try {
-            repository.mount();
+            repository.create();
         } catch (Exception e) {
-            plugin.getLogger().warning("An error occurred while trying to create the user repository.");
+            plugin.getLogger().warning("Could not create the user repository.");
             plugin.getLogger().warning(e.getMessage());
         }
     }
 
+    @Override
+    public void disable() {
+        if (repository == null) return;
+
+        PlayerJoinEvent.getHandlerList().unregister(playerListener);
+        autosaveTask.cancel();
+        save(memento());
+        cache.clear();
+
+        this.playerListener = null;
+        this.autosaveTask = null;
+        this.repository = null;
+    }
+
+    // ---- Persistence ----
+
     private void loadOnlinePlayers() {
         Player[] snapshot = Bukkit.getOnlinePlayers().toArray(Player[]::new);
 
-        plugin.getLogger().info("Loading user data...");
         for (Player player : snapshot) {
-            load(player.getUniqueId());
+            fetch(player.getUniqueId());
+        }
+    }
+
+    private void save(Collection<UserData> snapshot) {
+        int successCount = 0;
+        int errorCount = 0;
+
+        for (UserData data : snapshot) {
+            try {
+                repository.storeOne(data);
+                successCount++;
+            } catch (Exception e) {
+                plugin.getLogger().warning("Could not save user data (uuid: " + data.uid() + ").");
+                plugin.getLogger().warning(e.getMessage());
+                errorCount++;
+            }
+        }
+
+        plugin.getLogger().info("Saved " + successCount + " users with " + errorCount + " errors.");
+    }
+
+    private void purge(int purgeDays) {
+        try {
+            plugin.getLogger().info("Purged " + repository.purge(purgeDays) + " users.");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not purge user data.");
+            plugin.getLogger().warning(e.getMessage());
         }
     }
 
@@ -117,35 +154,29 @@ public class UserModule implements UserManager, PlacesModule {
         int purgeDays = plugin.getSettings().getUserPurgeDays();
 
         this.autosaveTask = Plugins.sync(plugin, () -> {
-            plugin.getLogger().info("Saving user data...");
-
             // Copy cached data so that it can be stored asynchronously without race conditions.
             Collection<UserData> snapshot = memento();
 
-            // Execute repository operations asynchronously.
             Plugins.async(plugin, () -> {
-                // Save all cached data.
-                snapshot.forEach(data -> {
-                    try {
-                        repository.storeOne(data);
-                    } catch (Exception e) {
-                        plugin.getLogger().warning("An error occurred while trying to save user data.");
-                        plugin.getLogger().warning(e.getMessage());
-                    }
-                });
-
+                // Save cache to the repository.
+                save(snapshot);
                 // Remove (purge) old data from the repository.
-                try {
-                    repository.purge(purgeDays);
-                } catch (Exception e) {
-                    plugin.getLogger().warning("An error occurred while trying to purge user data.");
-                    plugin.getLogger().warning(e.getMessage());
-                }
+                purge(purgeDays);
             });
 
             // Remove (purge) offline players from the cache.
             refreshCache();
         }, ticks, ticks);
+    }
+
+    // ---- Utilities ----
+
+    private List<UserData> memento() {
+        return cache.values().stream()
+                .map(future -> future.getNow(null))
+                .filter(Objects::nonNull)
+                .map(user -> ((StandardUser) user).memento())
+                .toList();
     }
 
     private void refreshCache() {
@@ -154,36 +185,5 @@ public class UserModule implements UserManager, PlacesModule {
                 .collect(Collectors.toUnmodifiableSet());
 
         cache.keySet().retainAll(onlinePlayers);
-    }
-
-    @Override
-    public void disable() {
-        if (autosaveTask == null) return;
-
-        PlayerJoinEvent.getHandlerList().unregister(playerListener);
-        autosaveTask.cancel();
-
-        plugin.getLogger().info("Saving user data...");
-        memento().forEach(data -> {
-            try {
-                repository.storeOne(data);
-            } catch (Exception e) {
-                plugin.getLogger().warning("An error occurred while trying to save user data.");
-                plugin.getLogger().warning(e.getMessage());
-            }
-        });
-
-        this.playerListener = null;
-        this.autosaveTask = null;
-        this.repository = null;
-        this.cache.clear();
-    }
-
-    private List<UserData> memento() {
-        return cache.values().stream()
-                .map(future -> future.getNow(null))
-                .filter(Objects::nonNull)
-                .map(user -> ((StandardUser) user).memento())
-                .toList();
     }
 }

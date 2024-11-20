@@ -10,6 +10,8 @@ public interface KeyedRepository<K, V> extends Repository {
 
     void deleteOne(K key) throws Exception;
 
+    Collection<V> fetchAll() throws Exception;
+
     Collection<K> fetchKeys() throws Exception;
 
 }

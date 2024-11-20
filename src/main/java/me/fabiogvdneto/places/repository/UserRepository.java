@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface UserRepository extends KeyedRepository<UUID, UserData> {
 
-    void purge(int days) throws Exception;
+    int purge(int days) throws Exception;
 
 }

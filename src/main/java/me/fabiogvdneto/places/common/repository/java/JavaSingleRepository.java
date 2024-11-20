@@ -18,7 +18,7 @@ public class JavaSingleRepository<V> implements SingleRepository<V> {
     }
 
     @Override
-    public void mount() throws IOException {
+    public void create() throws IOException {
         Files.createDirectories(file.getParent());
     }
 
