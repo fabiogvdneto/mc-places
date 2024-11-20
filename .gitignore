@@ -7,12 +7,16 @@
 # BlueJ files
 *.ctxt
 
-<<<<<<< HEAD
-=======
 # IntelliJ files
 *.iml
+.idea
 
->>>>>>> 8aaaca4 (Added project files.)
+# VS Code
+.vscode/
+
+# Mac OS
+.DS_Store
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
