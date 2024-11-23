@@ -24,15 +24,15 @@ public abstract class CommandHandler<P extends JavaPlugin> implements CommandExe
 
     /* ---- Registration ---- */
 
-    public final void inject(String label) {
+    public final void registerAs(String label) {
         PluginCommand command = plugin.getCommand(label);
 
         if (command != null) {
-            inject(command);
+            registerAs(command);
         }
     }
 
-    public final void inject(PluginCommand command) {
+    public final void registerAs(PluginCommand command) {
         command.setExecutor(this);
         command.setTabCompleter(this);
     }

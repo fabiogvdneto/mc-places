@@ -1,6 +1,6 @@
 package me.fabiogvdneto.places.module.user;
 
-import me.fabiogvdneto.places.PlacesModule;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.Plugins;
 import me.fabiogvdneto.places.model.User;
@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class UserModule implements UserManager, PlacesModule {
+public class UserService implements UserManager, PluginService {
 
     private final PlacesPlugin plugin;
     private final Map<UUID, CompletableFuture<User>> cache = new HashMap<>();
@@ -28,7 +28,7 @@ public class UserModule implements UserManager, PlacesModule {
     private BukkitTask autosaveTask;
     private Listener playerListener;
 
-    public UserModule(PlacesPlugin plugin) {
+    public UserService(PlacesPlugin plugin) {
         this.plugin = Objects.requireNonNull(plugin);
     }
 

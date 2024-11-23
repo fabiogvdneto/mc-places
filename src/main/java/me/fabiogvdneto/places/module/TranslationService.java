@@ -1,6 +1,6 @@
 package me.fabiogvdneto.places.module;
 
-import me.fabiogvdneto.places.PlacesModule;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.i18n.PluginTranslator;
 import net.kyori.adventure.audience.Audience;
@@ -13,12 +13,12 @@ import org.bukkit.command.CommandSender;
 import java.io.IOException;
 import java.util.Collection;
 
-public final class TranslationModule implements PlacesModule {
+public final class TranslationService implements PluginService {
 
     private final PlacesPlugin plugin;
     private final PluginTranslator translator;
 
-    public TranslationModule(PlacesPlugin plugin) {
+    public TranslationService(PlacesPlugin plugin) {
         this.plugin = plugin;
         this.translator = new PluginTranslator();
     }

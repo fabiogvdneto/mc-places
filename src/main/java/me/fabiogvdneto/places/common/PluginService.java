@@ -1,6 +1,6 @@
-package me.fabiogvdneto.places;
+package me.fabiogvdneto.places.common;
 
-public interface PlacesModule {
+public interface PluginService {
 
     /**
      * Called when plugin is being enabled.

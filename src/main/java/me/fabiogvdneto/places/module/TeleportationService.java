@@ -1,6 +1,6 @@
 package me.fabiogvdneto.places.module;
 
-import me.fabiogvdneto.places.PlacesModule;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.teleporter.PluginTeleporter;
 import me.fabiogvdneto.places.common.teleporter.Teleportation;
@@ -13,12 +13,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class TeleportationModule implements PlacesModule, Teleporter {
+public class TeleportationService implements PluginService, Teleporter {
 
     private final PlacesPlugin plugin;
     private PluginTeleporter teleporter;
 
-    public TeleportationModule(PlacesPlugin plugin) {
+    public TeleportationService(PlacesPlugin plugin) {
         this.teleporter = new PluginTeleporter(plugin);
         this.plugin = plugin;
     }

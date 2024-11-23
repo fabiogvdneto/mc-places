@@ -6,11 +6,11 @@ import me.fabiogvdneto.places.common.teleporter.Teleporter;
 import me.fabiogvdneto.places.model.Place;
 import me.fabiogvdneto.places.model.UserManager;
 import me.fabiogvdneto.places.model.WarpManager;
-import me.fabiogvdneto.places.module.SettingsModule;
-import me.fabiogvdneto.places.module.TeleportationModule;
-import me.fabiogvdneto.places.module.TranslationModule;
-import me.fabiogvdneto.places.module.user.UserModule;
-import me.fabiogvdneto.places.module.warp.WarpModule;
+import me.fabiogvdneto.places.module.ConfigurationService;
+import me.fabiogvdneto.places.module.TeleportationService;
+import me.fabiogvdneto.places.module.TranslationService;
+import me.fabiogvdneto.places.module.user.UserService;
+import me.fabiogvdneto.places.module.warp.WarpService;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,11 +21,11 @@ public final class PlacesPlugin extends JavaPlugin {
 
     public static PlacesPlugin INSTANCE;
 
-    private final WarpModule warps = new WarpModule(this);
-    private final UserModule users = new UserModule(this);
-    private final SettingsModule settings = new SettingsModule(this);
-    private final TranslationModule messages = new TranslationModule(this);
-    private final TeleportationModule teleportations = new TeleportationModule(this);
+    private final WarpService warps = new WarpService(this);
+    private final UserService users = new UserService(this);
+    private final ConfigurationService settings = new ConfigurationService(this);
+    private final TranslationService messages = new TranslationService(this);
+    private final TeleportationService teleportations = new TeleportationService(this);
 
     /* ---- Bootstrap ---- */
 
@@ -44,21 +44,21 @@ public final class PlacesPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        new CommandSpawn(this).inject("spawn");
-        new CommandWarp(this).inject("warp");
-        new CommandWarps(this).inject("warps");
-        new CommandDelwarp(this).inject("delwarp");
-        new CommandSetwarp(this).inject("setwarp");
-        new CommandHome(this).inject("home");
-        new CommandHomes(this).inject("homes");
-        new CommandSethome(this).inject("sethome");
-        new CommandDelhome(this).inject("delhome");
-        new CommandTpa(this).inject("tpa");
-        new CommandTphere(this).inject("tphere");
-        new CommandTpaccept(this).inject("tpaccept");
-        new CommandTpdeny(this).inject("tpdeny");
-        new CommandTpcancel(this).inject("tpcancel");
-        new CommandBack(this).inject("back");
+        new CommandSpawn(this).registerAs("spawn");
+        new CommandWarp(this).registerAs("warp");
+        new CommandWarps(this).registerAs("warps");
+        new CommandDelwarp(this).registerAs("delwarp");
+        new CommandSetwarp(this).registerAs("setwarp");
+        new CommandHome(this).registerAs("home");
+        new CommandHomes(this).registerAs("homes");
+        new CommandSethome(this).registerAs("sethome");
+        new CommandDelhome(this).registerAs("delhome");
+        new CommandTpa(this).registerAs("tpa");
+        new CommandTphere(this).registerAs("tphere");
+        new CommandTpaccept(this).registerAs("tpaccept");
+        new CommandTpdeny(this).registerAs("tpdeny");
+        new CommandTpcancel(this).registerAs("tpcancel");
+        new CommandBack(this).registerAs("back");
     }
 
     @Override
@@ -87,11 +87,11 @@ public final class PlacesPlugin extends JavaPlugin {
         return teleportations;
     }
 
-    public TranslationModule getMessages() {
+    public TranslationService getMessages() {
         return messages;
     }
 
-    public SettingsModule getSettings() {
+    public ConfigurationService getSettings() {
         return settings;
     }
 

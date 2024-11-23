@@ -1,6 +1,6 @@
 package me.fabiogvdneto.places.module.warp;
 
-import me.fabiogvdneto.places.PlacesModule;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.Plugins;
 import me.fabiogvdneto.places.model.Place;
@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WarpModule implements WarpManager, PlacesModule {
+public class WarpService implements WarpManager, PluginService {
 
     private final PlacesPlugin plugin;
     private final Map<String, Place> cache = new HashMap<>();
@@ -25,7 +25,7 @@ public class WarpModule implements WarpManager, PlacesModule {
     private BukkitTask autosaveTask;
     private WarpRepository repository;
 
-    public WarpModule(PlacesPlugin plugin) {
+    public WarpService(PlacesPlugin plugin) {
         this.plugin = plugin;
     }
 

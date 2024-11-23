@@ -1,6 +1,6 @@
 package me.fabiogvdneto.places.module;
 
-import me.fabiogvdneto.places.PlacesModule;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
 import me.fabiogvdneto.places.common.PermissionWrapper;
 import org.bukkit.command.Command;
@@ -11,11 +11,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class SettingsModule implements PlacesModule {
+public final class ConfigurationService implements PluginService {
 
     private final PlacesPlugin plugin;
 
-    public SettingsModule(PlacesPlugin plugin) {
+    public ConfigurationService(PlacesPlugin plugin) {
         this.plugin = plugin;
     }
 
