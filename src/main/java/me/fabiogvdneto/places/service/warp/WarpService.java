@@ -1,4 +1,4 @@
-package me.fabiogvdneto.places.module.warp;
+package me.fabiogvdneto.places.service.warp;
 
 import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;

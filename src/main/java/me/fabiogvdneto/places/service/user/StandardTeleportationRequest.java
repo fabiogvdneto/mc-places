@@ -1,4 +1,4 @@
-package me.fabiogvdneto.places.module.user;
+package me.fabiogvdneto.places.service.user;
 
 import me.fabiogvdneto.places.model.TeleportationRequest;
 import me.fabiogvdneto.places.model.exception.TeleportationRequestClosedException;

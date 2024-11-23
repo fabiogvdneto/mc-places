@@ -1,4 +1,4 @@
-package me.fabiogvdneto.places.module.warp;
+package me.fabiogvdneto.places.service.warp;
 
 import me.fabiogvdneto.places.model.Place;
 import me.fabiogvdneto.places.repository.data.LocationData;

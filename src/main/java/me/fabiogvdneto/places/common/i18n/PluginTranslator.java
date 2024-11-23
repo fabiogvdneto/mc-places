@@ -27,7 +27,7 @@ public class PluginTranslator extends AbstractTranslator {
         translations.clear();
     }
 
-    public void loadTranslations(Plugin plugin, String code) throws IOException {
+    public void loadTranslations(Plugin plugin, String code) {
         if (this.code.equals(code)) return;
 
         String path = path(code);

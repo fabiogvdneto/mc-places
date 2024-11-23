@@ -1,7 +1,7 @@
-package me.fabiogvdneto.places.module;
+package me.fabiogvdneto.places.service;
 
-import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
+import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.common.i18n.PluginTranslator;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -10,10 +10,11 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 
-import java.io.IOException;
 import java.util.Collection;
 
 public final class TranslationService implements PluginService {
+
+    private static final String DEFAULT_LANGUAGE = "en";
 
     private final PlacesPlugin plugin;
     private final PluginTranslator translator;
@@ -24,13 +25,8 @@ public final class TranslationService implements PluginService {
     }
 
     public void enable() {
-        try {
-            translator.loadTranslations(plugin, "en");
-            translator.loadTranslations(plugin, plugin.getSettings().getLanguage());
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred while trying to load translations.");
-            plugin.getLogger().warning(e.getMessage());
-        }
+        translator.loadTranslations(plugin, DEFAULT_LANGUAGE);
+        translator.loadTranslations(plugin, plugin.getSettings().getLanguage());
     }
 
     public void disable() {

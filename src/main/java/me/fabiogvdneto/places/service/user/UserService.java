@@ -1,4 +1,4 @@
-package me.fabiogvdneto.places.module.user;
+package me.fabiogvdneto.places.service.user;
 
 import me.fabiogvdneto.places.common.PluginService;
 import me.fabiogvdneto.places.PlacesPlugin;
