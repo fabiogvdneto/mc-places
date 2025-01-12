@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.fabiogvdneto</groupId>
-    <artifactId>CursedPlaces</artifactId>
+    <groupId>com.github.fabiogvdneto</groupId>
+    <artifactId>mc-places</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

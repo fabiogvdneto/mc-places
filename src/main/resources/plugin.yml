@@ -1,6 +1,6 @@
 name: CursedPlaces
 version: '0.1'
-main: me.fabiogvdneto.places.PlacesPlugin
+main: com.github.fabiogvdneto.places.PlacesPlugin
 api-version: '1.21'
 commands:
   spawn: { }
