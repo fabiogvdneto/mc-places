@@ -5,19 +5,19 @@ import com.github.fabiogvdneto.places.repository.data.LocationData;
 import com.github.fabiogvdneto.places.repository.data.WarpData;
 import org.bukkit.Location;
 
-class StandardWarp implements Place {
+class SimpleWarp implements Place {
 
     private final String name;
     private final Location location;
     private boolean closed;
 
-    public StandardWarp(WarpData data) {
+    public SimpleWarp(WarpData data) {
         this.name = data.name();
         this.location = data.location().bukkit();
         this.closed = data.closed();
     }
 
-    public StandardWarp(String name, Location location) {
+    public SimpleWarp(String name, Location location) {
         this.name = name;
         this.location = location;
         this.closed = false;

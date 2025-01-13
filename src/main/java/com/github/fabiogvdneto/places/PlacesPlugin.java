@@ -1,7 +1,6 @@
 package com.github.fabiogvdneto.places;
 
 import com.github.fabiogvdneto.places.command.*;
-import me.fabiogvdneto.places.command.*;
 import com.github.fabiogvdneto.places.common.teleporter.Teleportation;
 import com.github.fabiogvdneto.places.common.teleporter.Teleporter;
 import com.github.fabiogvdneto.places.model.Place;

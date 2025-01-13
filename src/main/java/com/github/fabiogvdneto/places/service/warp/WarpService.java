@@ -46,7 +46,7 @@ public class WarpService implements WarpManager, PluginService {
 
     @Override
     public Place create(String name, Location location) throws WarpAlreadyExistsException {
-        Place warp = new StandardWarp(name, location);
+        Place warp = new SimpleWarp(name, location);
 
         if (cache.putIfAbsent(name.toLowerCase(), warp) != null)
             throw new WarpAlreadyExistsException();
@@ -72,7 +72,7 @@ public class WarpService implements WarpManager, PluginService {
 
         try {
             repository.create();
-            repository.fetch().forEach(data -> cache.put(data.name().toLowerCase(), new StandardWarp(data)));
+            repository.fetch().forEach(data -> cache.put(data.name().toLowerCase(), new SimpleWarp(data)));
             plugin.getLogger().info("Loaded " + cache.size() + " warps.");
         } catch (Exception e) {
             plugin.getLogger().warning("Could not load warp data.");
@@ -114,7 +114,7 @@ public class WarpService implements WarpManager, PluginService {
     }
 
     private Collection<WarpData> memento() {
-        return cache.values().stream().map(warp -> ((StandardWarp) warp).data()).toList();
+        return cache.values().stream().map(warp -> ((SimpleWarp) warp).data()).toList();
     }
 
     public WarpRepository getRepository() {

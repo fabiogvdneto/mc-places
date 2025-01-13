@@ -5,19 +5,19 @@ import com.github.fabiogvdneto.places.repository.data.HomeData;
 import com.github.fabiogvdneto.places.repository.data.LocationData;
 import org.bukkit.Location;
 
-class StandardHome implements Home {
+class SimpleHome implements Home {
 
     private final String name;
     private final Location location;
     private boolean closed;
 
-    StandardHome(HomeData data) {
+    SimpleHome(HomeData data) {
         this.name = data.name();
         this.location = data.location().bukkit();
         this.closed = data.closed();
     }
 
-    StandardHome(String name, Location location) {
+    SimpleHome(String name, Location location) {
         this.name = name;
         this.location = location;
     }

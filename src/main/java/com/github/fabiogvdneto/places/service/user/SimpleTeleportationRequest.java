@@ -6,7 +6,7 @@ import com.github.fabiogvdneto.places.model.exception.TeleportationRequestClosed
 import java.time.Duration;
 import java.util.UUID;
 
-class StandardTeleportationRequest implements TeleportationRequest {
+class SimpleTeleportationRequest implements TeleportationRequest {
 
     private final UUID sender;
     private final UUID receiver;
@@ -16,7 +16,7 @@ class StandardTeleportationRequest implements TeleportationRequest {
     private boolean expired;
     private State state;
 
-    StandardTeleportationRequest(UUID sender, UUID receiver, Duration duration) {
+    SimpleTeleportationRequest(UUID sender, UUID receiver, Duration duration) {
         this.sender = sender;
         this.receiver = receiver;
         this.duration = duration;

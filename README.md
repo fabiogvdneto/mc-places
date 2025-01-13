@@ -1,30 +1,32 @@
 # Introduction
 
-Places is a minecraft plugin that aims to provide the ability for a
-player to teleport to other places, which are identified by a name,
-and can be a warp, home, or any online player.
+Places is a minecraft paper plugin that gives players the ability
+to teleport to pre-defined locations, called places. Places are
+identified by a name and are attached to a given location. In
+order to create a place, you can either create a warp or create a
+home, depending on what you want.
 
-A **warp** is a public place and can only be set by server administrators.
-Warps are closed by default, which means administrators and players with
-the right permission can teleport to it. Open warps are available to
-everyone.
+**Warps** are public places designed to be accessed by everyone,
+as long as the player has permission to do so. Is the server
+administrator's responsibility to create, delete, and configure
+the warps.
 
-A **home** is a private place and can be set by anyone. Homes are closed
-by default, meaning only administrators and their owner can teleport to it.
-Open homes are available to anyone through `/home <name> <player>`.
+**Homes**, on the other hand, are private places owned by someone.
+The owner has full control over the homes he creates, and can decide
+whether other players can visit their homes or not.
 
 ### Features
 
 - Warps (public places).
 - Homes (private places).
-- Permission-based home limit.
-- Permission-based teleportation delay/warmup.
+- Per-player home limit (permission-based).
+- Per-player teleportation delay/warmup (permission-based).
 - Efficient detection of movement and damage during teleportation.
 - Prevent command execution while teleporting.
 - Cancel teleportation before it happens.
 - Send teleportation requests to other players (/tpa).
-- Auto-save warps and homes.
-- Auto-purge user data.
+- Data auto-saving (automatically save data to prevent data loss on crashes).
+- Data auto-purging (automatically delete data that is no longer needed).
 - All messages are customizable.
 - All messages support json-style formatting (powered by Adventure API).
 

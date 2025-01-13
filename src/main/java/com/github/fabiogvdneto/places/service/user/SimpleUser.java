@@ -14,21 +14,21 @@ import org.bukkit.Location;
 import java.time.Duration;
 import java.util.*;
 
-class StandardUser implements User {
+class SimpleUser implements User {
 
     private final UUID uid;
     private final Map<String, Home> homes;
     private final Map<UUID, TeleportationRequest> tprequests;
 
-    StandardUser(UserData userData) {
+    SimpleUser(UserData userData) {
         this(userData.uid());
 
         for (HomeData homeData : userData.homes()) {
-            homes.put(homeData.name().toLowerCase(), new StandardHome(homeData));
+            homes.put(homeData.name().toLowerCase(), new SimpleHome(homeData));
         }
     }
 
-    StandardUser(UUID uid) {
+    SimpleUser(UUID uid) {
         this.uid = uid;
         this.homes = new HashMap<>();
         this.tprequests = new HashMap<>();
@@ -56,7 +56,7 @@ class StandardUser implements User {
 
     @Override
     public Home createHome(String name, Location location) throws HomeAlreadyExistsException {
-        Home home = new StandardHome(name, location);
+        Home home = new SimpleHome(name, location);
 
         if (homes.putIfAbsent(name.toLowerCase(), home) != null)
             throw new HomeAlreadyExistsException();
@@ -90,13 +90,13 @@ class StandardUser implements User {
         if (request != null && !request.hasExpired())
             throw new TeleportationRequestAlreadyExistsException(request);
 
-        request = new StandardTeleportationRequest(sender, uid, duration);
+        request = new SimpleTeleportationRequest(sender, uid, duration);
         tprequests.put(sender, request);
         return request;
     }
 
     UserData memento() {
-        List<HomeData> homeData = homes.values().stream().map(home -> ((StandardHome) home).memento()).toList();
+        List<HomeData> homeData = homes.values().stream().map(home -> ((SimpleHome) home).memento()).toList();
         return new UserData(uid, homeData);
     }
 }

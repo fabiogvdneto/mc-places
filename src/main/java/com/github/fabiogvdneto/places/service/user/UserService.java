@@ -51,7 +51,7 @@ public class UserService implements UserManager, PluginService {
             Plugins.async(plugin, () -> {
                 try {
                     UserData data = repository.fetchOne(userId);
-                    StandardUser user = (data == null) ? new StandardUser(userId) : new StandardUser(data);
+                    SimpleUser user = (data == null) ? new SimpleUser(userId) : new SimpleUser(data);
                     future.complete(user);
                 } catch (Exception e) {
                     future.completeExceptionally(e);
@@ -175,7 +175,7 @@ public class UserService implements UserManager, PluginService {
         return cache.values().stream()
                 .map(future -> future.getNow(null))
                 .filter(Objects::nonNull)
-                .map(user -> ((StandardUser) user).memento())
+                .map(user -> ((SimpleUser) user).memento())
                 .toList();
     }
 
